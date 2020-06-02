@@ -2,7 +2,7 @@
     "name": "SpotAdd",
     "version": "0.1",
     "description": "Add YouTube songs to Spotify playlists.",
-    "permissions": ["tabs", "activeTab"],
+    "permissions": ["tabs", "activeTab", "webNavigation", "*://*/*"],
     "background": {
         "scripts": ["background.js"],
         "persistent": false
