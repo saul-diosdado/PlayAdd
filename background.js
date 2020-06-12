@@ -24,10 +24,9 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (regexAccessGranted.exec(changeInfo.url)) {
         // Set global query parameters from the response URL.
         let responseJSON = queryGrantedStringToJSON(changeInfo.url);
-        chrome.storage.local.set({"accessToken": token}, () => {
+        chrome.storage.local.set({"accessToken": responseJSON.access_token}, () => {
             console.log("accessToken set.");
         });
-
         // Alert the user of succesful authorization.
         alert("Access granted for " + getTokenExpiresIn() + " seconds!");
     } else if (regexAccessDenied.exec(changeInfo.url)) {
