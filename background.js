@@ -9,7 +9,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Avoids error of trying to get loginButton which will not exist immediately (since it belongs in popup).
     try {
         document.getElementById("loginButton").addEventListener("click", implicitGrantLogin);
-        document.getElementById("spotifyButton").addEventListener("click", () => {});
+        document.getElementById("spotifyButton").addEventListener("click", () => {
+            spotifySearch("All Me", "Drake")
+            spotifyGetPlaylist("7KduQbOdd287FW3EOAVDje");
+            spotifyGetAllPlaylists();
+        });
     } catch {}
 });
 
@@ -22,13 +26,13 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
     // Check if user was redirected to local host and verify if access was granted or denied.
     if (regexAccessGranted.exec(changeInfo.url)) {
-        // Set global query parameters from the response URL.
+        // Contains access_token, expires_in, and token_type.
         let responseJSON = queryGrantedStringToJSON(changeInfo.url);
         chrome.storage.local.set({"accessToken": responseJSON.access_token}, () => {
             console.log("accessToken set.");
         });
         // Alert the user of succesful authorization.
-        alert("Access granted for " + getTokenExpiresIn() + " seconds!");
+        alert("Access granted for " + responseJSON.expires_in + " seconds!");
     } else if (regexAccessDenied.exec(changeInfo.url)) {
         alert("Access denied!");
     }
@@ -41,7 +45,7 @@ function implicitGrantLogin() {
     const clientID = "a1064fa27beb43a38664d07aa5405304";
     const responseType = "token";
     const redirectURI = "http://localhost:8888/callback";
-    const scope = "playlist-modify-public playlist-modify-private user-read-private user-read-email";
+    const scope = "playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative user-read-private user-read-email";
 
     // Full authorization URL with parameters.
     const authorizeURL = authEndpoint + 
@@ -71,9 +75,90 @@ function spotifySearch(track, artist) {
         xmlHTTP.open("GET", searchURL, true);
         xmlHTTP.setRequestHeader("Authorization", "Bearer " + item.accessToken);
         xmlHTTP.onreadystatechange = () => {
-            // Opens the first search result in spotify in a new tab.
             if (xmlHTTP.readyState === 4 && xmlHTTP.status === 200) {
-                window.open(JSON.parse(xmlHTTP.responseText).tracks.items[0].external_urls.spotify, "_blank");
+                console.log("Search Track & Artist");
+                // Gather information from response.
+                let parsedResponse = JSON.parse(xmlHTTP.responseText);
+                let trackName = parsedResponse.tracks.items[0].name;
+                let artistsName = parsedResponse.tracks.items[0].artists;
+                
+                // Build an information string to print to console.
+                let listeningInfo = "Listening to " + trackName + " by ";
+                for (let i = 0; i < artistsName.length; i++) {
+                    listeningInfo += artistsName[i].name + " ";
+                }
+                console.log(listeningInfo);
+                console.log(parsedResponse);
+                spotifyPlaylistAdd("7KduQbOdd287FW3EOAVDje", parsedResponse.tracks.items[0].uri);
+            }
+        }
+        xmlHTTP.send();
+    });
+}
+
+// Add a track to a playlist given a playlist ID and the track URI.
+function spotifyPlaylistAdd(playlistID, trackURI) {
+    const addEndpoint = "https://api.spotify.com/v1/playlists";
+    const position = 0;
+
+    const addURL = addEndpoint +
+            "/" + playlistID +
+            "/tracks?uris=" + encodeURIComponent(trackURI) +
+            "&position=" + position;
+
+    chrome.storage.local.get("accessToken", (item) => {
+        let xmlHTTP = new XMLHttpRequest();
+        xmlHTTP.open("POST", addURL, true);
+        xmlHTTP.setRequestHeader("Authorization", "Bearer " + item.accessToken);
+        xmlHTTP.onreadystatechange = () => {
+            if (xmlHTTP.readyState === 4 && xmlHTTP.status === 201) {
+                console.log("Playlist Add");
+                console.log(JSON.parse(xmlHTTP.responseText));
+            }
+        }
+        xmlHTTP.send();
+    });
+}
+
+// Retrieve the name of a playlist given a playlist ID.
+function spotifyGetPlaylist(playlistID) {
+    const playlistEndpoint = "https://api.spotify.com/v1/playlists";
+    const fields = "name";
+
+    const playlistURL = playlistEndpoint +
+            "/" + playlistID +
+            "?fields=" + encodeURIComponent(fields);
+
+    chrome.storage.local.get("accessToken", (item) => {
+        let xmlHTTP = new XMLHttpRequest();
+        xmlHTTP.open("GET", playlistURL, true);
+        xmlHTTP.setRequestHeader("Authorization", "Bearer " + item.accessToken);
+        xmlHTTP.onreadystatechange = () => {
+            if (xmlHTTP.readyState === 4 && xmlHTTP.status === 200) {
+                console.log("Get Playlist");
+                console.log(JSON.parse(xmlHTTP.responseText));
+            }
+        }
+        xmlHTTP.send();
+    });
+}
+
+// Get a list of all of the user's playlists including playlists the user follows.
+function spotifyGetAllPlaylists() {
+    const playlistEndpoint = "https://api.spotify.com/v1/me/playlists";
+    const limit = 5;
+
+    const playlistURL = playlistEndpoint +
+            "?limit=" + limit;
+
+    chrome.storage.local.get("accessToken", (item) => {
+        let xmlHTTP = new XMLHttpRequest();
+        xmlHTTP.open("GET", playlistURL, true);
+        xmlHTTP.setRequestHeader("Authorization", "Bearer " + item.accessToken);
+        xmlHTTP.onreadystatechange = () => {
+            if (xmlHTTP.readyState === 4 && xmlHTTP.status === 200) {
+                console.log("Get All Playlists");
+                console.log(JSON.parse(xmlHTTP.responseText));
             }
         }
         xmlHTTP.send();
