@@ -23,14 +23,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     // Check if a YouTube video is being watched.
     if (regexYTVideoURL.exec(changeInfo.url)) {
         console.log("Watching a YouTube video!");
-        chrome.runtime.onMessage.addListener((message, callback) => {
-            if (message == "changeColor"){
-                chrome.tabs.executeScript({
-                    code: console.log('Hello')
-                });
-            }
-        });
-        
         // Song title
         // console.log(document.querySelector("#collapsible > ytd-metadata-row-renderer:nth-child(4)").querySelector("#content > yt-formatted-string").textContent);
         // Artist

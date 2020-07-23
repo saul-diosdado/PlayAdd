@@ -2,11 +2,11 @@
 document.addEventListener("DOMContentLoaded", () => {
     // Avoids error of trying to get loginButton which will not exist immediately (since it belongs in popup).
     try {
-        document.getElementById("loginButton").addEventListener("click", implicitGrantLogin);
-        document.getElementById("spotifyButton").addEventListener("click", () => {
+        document.getElementById("login-button").addEventListener("click", implicitGrantLogin);
+        document.getElementById("spotify-button").addEventListener("click", () => {
             spotifySearch("Antidote", "Travis Scott");
             spotifyGetPlaylist("7KduQbOdd287FW3EOAVDje");
-            spotifyGetAllPlaylists();
+            spotifyGetUserURI();
         });
     } catch {}
 });
@@ -67,7 +67,6 @@ function spotifySearch(track, artist) {
                 console.log("===============================");
                 // Adds the search result by passing the URI of the playlist and URI of the track.
                 spotifyPlaylistAdd("7KduQbOdd287FW3EOAVDje", parsedResponse.tracks.items[0].uri);
-                window.open(parsedResponse.tracks.items[0].album.images[1].url);
                 spotifyGetTrack(parsedResponse.tracks.items[0].id);
             }
         }
@@ -147,7 +146,7 @@ function spotifyGetPlaylist(playlistID) {
 }
 
 // Get a list of all of the user's playlists including playlists the user follows.
-function spotifyGetAllPlaylists() {
+function spotifyGetAllPlaylists(uri) {
     const playlistEndpoint = "https://api.spotify.com/v1/me/playlists";
     const limit = 5;
 
@@ -161,8 +160,33 @@ function spotifyGetAllPlaylists() {
         xmlHTTP.onreadystatechange = () => {
             if (xmlHTTP.readyState === 4 && xmlHTTP.status === 200) {
                 console.log("Get All Playlists");
-                console.log(JSON.parse(xmlHTTP.responseText));
+                // Show only the playlist that belong to the user by comparing the "owner's" spotify uri's.
+                let userPlaylists = JSON.parse(xmlHTTP.responseText).items;
+                for (let i = 0; i < userPlaylists.length; i++) {
+                    if (userPlaylists[i].owner.uri == uri) {
+                        console.log(userPlaylists[i]);
+                    }
+                }
                 console.log("===============================");
+            }
+        }
+        xmlHTTP.send();
+    });
+}
+
+function spotifyGetUserURI() {
+    const userEndpoint = "https://api.spotify.com/v1/me";
+    
+    chrome.storage.local.get("accessToken", (item) => {
+        let xmlHTTP = new XMLHttpRequest();
+        xmlHTTP.open("GET", userEndpoint, true);
+        xmlHTTP.setRequestHeader("Authorization", "Bearer " + item.accessToken);
+        xmlHTTP.onreadystatechange = () => {
+            if (xmlHTTP.readyState === 4 && xmlHTTP.status === 200) {
+                console.log("Get User URI");
+                console.log(JSON.parse(xmlHTTP.responseText).uri);
+                console.log("===============================");
+                spotifyGetAllPlaylists(JSON.parse(xmlHTTP.responseText).uri);
             }
         }
         xmlHTTP.send();

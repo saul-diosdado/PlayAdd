@@ -2,24 +2,37 @@
 <html>
     <head>
         <title>PlayAdd for Spotify</title>
-        <style>
-            body {
-                width: 300px;
-                height: 300px;
-            }
-        </style>
+        <link rel="stylesheet" href="style.css">
     </head>
+
     <body>
         <header>
             <h2>PlayAdd for Spotify</h2>
         </header>
         
-        <button id="loginButton">Login</button>
-        <button id="spotifyButton">Spotify</button>
-        <script language="javascript" src="spotify.js"></script>
+        <div class="track-panel">
+            <img id="track-cover-art" src="https://i.scdn.co/image/ab67616d00001e027433176f037e0ba14190c34f" alt="Track cover art" style="width:128px;height:128px;">
+
+            <div class="track-info">
+                <h6 id="listening-to">Listening to</h6>
+                <h3 id="track-name">Antidote</h3> 
+                <h4 id="artist-name">by Travis Scott</h4>
+            </div>
+            
+            <button id="login-button">Login</button>
+            <button id="spotify-button">Spotify</button>
+            <script language="javascript" src="spotify.js"></script>
+        </div>
         
-        <p>Listening to</p>
-        <h3>track_name</h3>
-        <p>by artist_name</p>
+        <div class="playlist-add">
+            <h4>Add to playlist</h4>
+            <br>
+            <select name="playlists" id="playlists">
+                <option value="sample1">Sample 1</option>
+                <option value="sample2">Sample 2</option>
+                <option value="sample3">Sample 3</option>
+            </select>
+            <button id="add-button">Add</button>
+        </div>
     </body>
 </html>
