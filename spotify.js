@@ -2,7 +2,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     // Avoids error of trying to get loginButton which will not exist immediately (since it belongs in popup).
     try {
-        document.getElementById("login-button").addEventListener("click", implicitGrantLogin);
         document.getElementById("spotify-button").addEventListener("click", () => {
             spotifySearch("Antidote", "Travis Scott");
             spotifyGetPlaylist("7KduQbOdd287FW3EOAVDje");
@@ -10,26 +9,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     } catch {}
 });
-
-// Redirect user to Spotify authorization screen with parameters.
-function implicitGrantLogin() {
-    // Parameters for authorization.
-    const authEndpoint = "https://accounts.spotify.com/authorize";
-    const clientID = "a1064fa27beb43a38664d07aa5405304";
-    const responseType = "token";
-    const redirectURI = "http://localhost:8888/callback";
-    const scope = "playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative user-read-private user-read-email";
-
-    // Full authorization URL with parameters.
-    const authorizeURL = authEndpoint + 
-            "?client_id=" + encodeURIComponent(clientID) + 
-            "&response_type=" + responseType + 
-            "&redirect_uri=" + encodeURIComponent(redirectURI) +
-            "&scope=" + encodeURIComponent(scope);
-
-    // Redirect to authorization screen where user accepts or denies permissions.
-    window.open(authorizeURL, "_blank");
-}
 
 // Call spotify API "search" endpoint which returns a list of tracks in JSON. 
 function spotifySearch(track, artist) {

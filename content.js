@@ -1,1 +1,0 @@
-console.log(document.querySelector("#container > h1 > yt-formatted-string").textContent);
