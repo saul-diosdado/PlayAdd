@@ -7,30 +7,25 @@ const regexAccessDenied = /http:\/\/localhost:8888\/callback\?error=access_denie
 // Listens to changes in browser URL.
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     // Check if a YouTube video is being watched.
-    if (regexYTVideoURL.exec(tab.url)) {
-        console.log("Watching a YouTube video!");
-        
-        // Check the login state of the user and set the popup accordingly.
-        chrome.storage.local.get("isLoggedIn", (item) => {
-            console.log(item);
-            if (item.isLoggedIn) {
-                chrome.browserAction.setPopup({tabId: tabId, popup: "popup.html"});
-            } else {
-                chrome.browserAction.setPopup({tabId: tabId, popup: "login.html"});
-            }
-        });
-        
-        // Song title
-        // console.log(document.querySelector("#collapsible > ytd-metadata-row-renderer:nth-child(4)").querySelector("#content > yt-formatted-string").textContent);
-        // Artist
-        // console.log(document.querySelector("#collapsible > ytd-metadata-row-renderer:nth-child(5)").querySelector("#content > yt-formatted-string").textContent);
-        // Artist (with hyperlink)
-        // console.log(document.querySelector("#collapsible > ytd-metadata-row-renderer:nth-child(5)").querySelector("#content > yt-formatted-string").querySelector("#content > yt-formatted-string > a").textContent);
-    } else {
-        // If not watching a YouTube video, set the popup page to a place-holder.
-        console.log("Not watching a YouTube video!");
-        chrome.browserAction.setPopup({tabId: tabId, popup: "holder.html"});
-    }
+    chrome.tabs.query({active: true, lastFocusedWindow: true}, (tabs) => {
+        if (regexYTVideoURL.exec(tabs[0].url) || regexYTVideoURL.exec(tab.url)) {
+            console.log("Watching a YouTube video!");
+            
+            // Check the login state of the user and set the popup accordingly.
+            chrome.storage.local.get("isLoggedIn", (item) => {
+                if (item.isLoggedIn) {
+                    chrome.browserAction.setPopup({tabId: tabId, popup: "popup.html"});
+                }
+            });
+        } else {
+            // If a YouTube video is not being watched and the user is logged in, show the holder popup.
+            chrome.storage.local.get("isLoggedIn", (item) => {
+                if (item.isLoggedIn) {
+                    chrome.browserAction.setPopup({tabId: tabId, popup: "holder.html"});
+                }
+            });
+        }
+    });
 
     // Check if user was redirected to local host and verify if access was granted or denied.
     if (regexAccessGranted.exec(changeInfo.url)) {
@@ -53,6 +48,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     }
 });
 
+// Clears all local storage once the Chrome window is closed.
 chrome.windows.onRemoved.addListener(function(windowid) {
     chrome.storage.local.clear(() => {
         console.log("Local storage cleared.")

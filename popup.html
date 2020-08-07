@@ -5,14 +5,40 @@
         <style>
             body {
                 background-color: #191414;;
-                width: 300px;
+                width: 325px;
                 height: 325px;
+                margin: 20px;
+            }
+
+            #title {
+                color: white;
+                font-family: Circular, Helvetica, Arial, sans-serif;
+                margin-bottom: 10px;
+            }
+
+            .divider {
+                width: 225px;
+                height: 5px;
+                background-color: #1DB954;
+                margin-bottom: 10px;
+            }
+
+            .track-cover-art {
+                float: left;
+                width: 30%;
             }
 
             .track-info {
+                padding: 10px;
+                width: 70%;
                 color: white;
                 font-family: Circular, Helvetica, Arial, sans-serif;
-                font-size: 24px;
+            }
+
+            .track-panel:after {
+                content: "";
+                display: table;
+                clear: both;
             }
 
             #artist-name {
@@ -23,32 +49,25 @@
 
     <body>
         <header>
-            <h2>PlayAdd for Spotify</h2>
+            <h2 id="title">PlayAdd for Spotify</h2>
+            <div class="divider"></div>
         </header>
 
         <div class="track-panel">
-            <img id="track-cover-art" src="https://i.scdn.co/image/ab67616d00001e027433176f037e0ba14190c34f" alt="Track cover art" style="width:128px;height:128px;">
+            <div class="track-cover-art">
+                <img src="https://i.scdn.co/image/ab67616d00001e027433176f037e0ba14190c34f" alt="Track cover art" style="width:128px;height:128px;">
+            </div>
 
             <div class="track-info">
                 <h6 id="listening-to">Listening to</h6>
                 <h3 id="track-name">Antidote</h3> 
                 <h4 id="artist-name">by Travis Scott</h4>
             </div>
-            
-            <button id="login-button">Login</button>
+
             <button id="spotify-button">Spotify</button>
             <script language="javascript" src="spotify.js"></script>
         </div>
         
-        <div class="playlist-add">
-            <h4>Add to playlist</h4>
-            <br>
-            <select name="playlists" id="playlists">
-                <option value="sample1">Sample 1</option>
-                <option value="sample2">Sample 2</option>
-                <option value="sample3">Sample 3</option>
-            </select>
-            <button id="add-button">Add</button>
-        </div>
+        <div class="playlist-add"></div>
     </body>
 </html>
