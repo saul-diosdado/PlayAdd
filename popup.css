@@ -1,0 +1,57 @@
+body {
+    background-color: #191414;
+    border-color: #191414;
+    width: 275px;
+    height: auto;
+    margin: 20px;
+}
+
+#title {
+    color: white;
+    font-family: Circular, Helvetica, Arial, sans-serif;
+    margin-bottom: 10px;
+    padding-left: 5px;
+}
+
+.divider {
+    width: auto;
+    height: 5px;
+    margin-bottom: 10px;
+    background-color: #1DB954;
+}
+
+#track-panel {
+    display: flex;
+    flex-direction: row;
+    background-color: #373737 ;
+    border: #252525 ;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+#track-panel:hover {
+    cursor: pointer;
+    transition-duration: 0.2s;
+}
+
+#track-panel:active {
+    background-color: #1DB954;
+}
+
+#track-info {
+    color: white;
+    font-family: Circular, Helvetica, Arial, sans-serif;
+    margin: auto auto 5px 15px;
+}
+
+#track-name {
+    font-size: 22px;
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+
+#artist-name {
+    color: gray;
+    margin-top: 5px;
+    margin-bottom: auto;
+}

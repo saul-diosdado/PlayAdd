@@ -15,6 +15,8 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
             chrome.storage.local.get("isLoggedIn", (item) => {
                 if (item.isLoggedIn) {
                     chrome.browserAction.setPopup({tabId: tabId, popup: "popup.html"});
+                } else {
+                    chrome.browserAction.setPopup({tabId: tabId, popup: "login.html"});
                 }
             });
         } else {

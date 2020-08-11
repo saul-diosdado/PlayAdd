@@ -1,0 +1,19 @@
+body {
+    background-color: #191414;
+    width: 175px;
+    height: 150px;
+    margin: 20px;
+}
+
+h3,
+h6 {
+    margin: 15px;
+}
+
+.hold-text {
+    color: white;
+    font-family: Circular, Helvetica, Arial, sans-serif;
+    font-size: 20px;
+    text-align: center;
+    margin: auto;
+}
