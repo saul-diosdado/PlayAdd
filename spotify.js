@@ -2,10 +2,14 @@
 document.addEventListener("DOMContentLoaded", () => {
     // Avoids error of trying to get loginButton which will not exist immediately (since it belongs in popup).
     try {
-        document.getElementById("spotify-button").addEventListener("click", () => {
-            spotifySearch("Antidote", "Travis Scott");
-            spotifyGetPlaylist("7KduQbOdd287FW3EOAVDje");
-            spotifyGetUserURI();
+        // document.getElementById("spotify-button").addEventListener("click", () => {
+        //     spotifySearch("Antidote", "Travis Scott");
+        //     spotifyGetPlaylist("7KduQbOdd287FW3EOAVDje");
+        //     spotifyGetUserURI();
+        // });
+
+        document.getElementById("track-panel").addEventListener("click", () => {
+            alert("Clicked");
         });
     } catch {}
 });

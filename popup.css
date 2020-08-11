@@ -31,11 +31,8 @@ body {
 
 #track-panel:hover {
     cursor: pointer;
-    transition-duration: 0.2s;
-}
-
-#track-panel:active {
     background-color: #1DB954;
+    transition-duration: 0.2s;
 }
 
 #track-info {
