@@ -1,8 +1,5 @@
 // Matches any YouTube video URL (note the "/watch?")
 const regexYTVideoURL = /https:\/\/www\.youtube\.com\/watch\?\S*/gm;
-// Matches access granted/denied after Spotify Web Authrorization redirect
-const regexAccessGranted = /http:\/\/localhost:8888\/callback#access_token=*/gm;
-const regexAccessDenied = /http:\/\/localhost:8888\/callback\?error=access_denied/gm;
 
 // Listens to changes in browser URL.
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
@@ -28,36 +25,41 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
             });
         }
     });
-
-    // Check if user was redirected to local host and verify if access was granted or denied.
-    if (regexAccessGranted.exec(changeInfo.url)) {
-        // Contains access_token, expires_in, and token_type.
-        let responseJSON = queryGrantedStringToJSON(changeInfo.url);
-        chrome.storage.local.set({"accessToken": responseJSON.access_token}, () => {
-            console.log("accessToken set.");
-        });
-
-        // Alert the user of succesful authorization.
-        alert("Access granted for " + responseJSON.expires_in + " seconds!");
-
-        // Set the popup to the content html popup and set state to logged in.
-        chrome.storage.local.set({"isLoggedIn": true}, () => {
-            chrome.browserAction.setPopup({popup: "holder.html"});
-            console.log("Logged in.")
-        });
-    } else if (regexAccessDenied.exec(changeInfo.url)) {
-        alert("Access denied!");
-    }
 });
 
-// Clears all local storage once the Chrome window is closed.
-chrome.windows.onRemoved.addListener(function(windowid) {
-    chrome.storage.local.clear(() => {
-        console.log("Local storage cleared.")
-    });
-})
+// Listen to messages.
+chrome.runtime.onMessage.addListener(
+    (request, sender, sendResponse) => {
+        // User hit "login" button.
+        if (request.message == "login") {
+            // Launch the "Authorization Code Flow", handle the response with the callback function.
+            chrome.identity.launchWebAuthFlow({
+                url: "http://localhost:3000/api/spotify/login/",
+                interactive: true
+            }, (redirectURI) => {
+                // Parse the URL query parameters into a JSON.
+                let queryParameters = queryURLToJSON(redirectURI);
 
-// Convert an access granted URL hash fragment to a JSON.
-function queryGrantedStringToJSON(string) {
-    return JSON.parse('{"' + decodeURI(string.split('#')[1].replace(/&/g, "\",\"").replace(/=/g,"\":\"")) + '"}')
+                // Store the tokens into storage.
+                chrome.storage.local.set({"access-token": queryParameters.access_token}, () => {
+                    console.log("Access token stored!");
+                });
+                chrome.storage.local.set({"refresh-token": queryParameters.refresh_token}, () => {
+                    console.log("Refresh token stored!");
+                });
+            });
+            
+            // Response indicating successful login.
+            sendResponse({message: "success"});
+        }
+    }
+);
+
+/*--------------------------------------------------------------------------*/
+/* HELPER FUNCTIONS */
+/*--------------------------------------------------------------------------*/
+
+// Takes as parameter a URL and returns a JSON of the extracted query parameters.
+function queryURLToJSON(string) {
+    return JSON.parse('{"' + decodeURI(string.split('?')[1].replace(/&/g, "\",\"").replace(/=/g,"\":\"")) + '"}');
 }
