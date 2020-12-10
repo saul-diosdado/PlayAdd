@@ -11,6 +11,7 @@
 const regexYTVideoURL = /https:\/\/www\.youtube\.com\/watch\?\S*/gm;
 
 const DOMAIN_BACKEND = "http://localhost:3000";
+const EXTENSION_ID = "lbaglokofickglbhmfkaimnafhghohhh";
 
 /**
  * Event listener that fires when a Google Chrome window is opened.
@@ -85,6 +86,9 @@ function spotifyLoginAuthorization() {
         chrome.storage.local.set({"login_status": "true"}, () => {
             console.log("Logged in.")
         });
+
+        // Open the redirect page to show the user that they have successfully connected their Spotify account.
+        window.open("chrome-extension://" + EXTENSION_ID + "/redirect.html");
     });
 }
 

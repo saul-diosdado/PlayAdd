@@ -1,0 +1,42 @@
+body {
+    height: 100%;
+    width: auto;
+    margin: 20px;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: #191414;
+    border-color: #191414;
+    color: white;
+    font-family: Circular, Helvetica, Arial, sans-serif;
+}
+
+#center-container {
+    width: 40%;
+}
+
+#center-container > #header-bar-container {
+    width: 100%;
+    
+    text-align: center;
+}
+
+#header-bar-container > #header-title {
+    margin: 0;
+}
+
+.divider {
+    height: 5px;
+    width: auto;
+    margin-top: 10px;
+    background-color: #1DB954;
+}
+
+#main-text {
+    text-align: center;
+
+    font-size: 32px;
+    font-weight: lighter;
+}
