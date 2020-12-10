@@ -2,20 +2,43 @@
 <html>
     <head>
         <title>PlayAdd for Spotify</title>
-        <link href="popup.css" rel="stylesheet" type="text/css">
-        <script src="spotify.js"></script>
+        <link rel="stylesheet" type="text/css" href="popup.css">
+        <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     </head>
-
+    
     <body>
-        <h2 id="title">PlayAdd for Spotify</h2>
+        <div id="header-bar-container">
+            <h2 id="header-title">PlayAdd for Spotify</h2>
+            <button id="settings-button" class="material-icons">settings</button>
+        </div>
 
         <div class="divider"></div>
 
-        <div id="track-panel">
-            <img id="track-art" src="https://i.scdn.co/image/ab67616d00001e02a4dfa7122ec07fe3a1af22e7" alt="Track cover art" style="width:96px;height:96px;">
-            <div id="track-info">
-                <h2 id="track-name">Worst Behavior</h2> 
-                <h4 id="artist-name">Drake</h4>
+        <div id="content-container">
+            <!-- Container when user is watching a music YouTube video. -->
+            <div id="playing-container">
+                <div id="track-panel">
+                    <img id="track-art" src="https://i.scdn.co/image/ab67616d00001e02a4dfa7122ec07fe3a1af22e7" alt="Track cover art" style="width:96px;height:96px;">
+                    <div id="track-info-panel">
+                        <h2 id="track-name">Worst Behavior</h2> 
+                        <h4 id="artist-name">Drake</h4>
+                    </div>
+                </div>
+                
+                <div id="add-panel">
+                    <select id="playlists-dropdown"></select>
+                    <button id="add-button">Add</button>
+                </div>
+            </div>
+            <script src="spotify.js"></script>
+            
+            <!-- Holder when user is not watching a music YouTube video. -->
+            <div id="holder-container">
+                <h3 id="holder-title">Welcome to PlayAdd for Spotify</h3>
+                <h6 id="holder-subtext">
+                    You are currently not watching a YouTube video. Play a YouTube
+                    video to get started.
+                </h6>
             </div>
         </div>
     </body>

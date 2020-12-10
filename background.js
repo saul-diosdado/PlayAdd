@@ -19,7 +19,7 @@ chrome.windows.onCreated.addListener((window) => {
     // Check if the user is logged in. If so, don't show the login popup and refersh the access token.
     chrome.storage.local.get("login_status", (item) => {
         if (item.login_status == "true") {
-            chrome.browserAction.setPopup({popup: "holder.html"});
+            chrome.browserAction.setPopup({popup: "popup.html"});
             spotifyRefreshToken();
         }
     });

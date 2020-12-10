@@ -1,54 +1,151 @@
 body {
+    height: auto;
+    width: 275px;
+    margin: 15px;
+
     background-color: #191414;
     border-color: #191414;
-    width: 275px;
-    height: auto;
-    margin: 20px;
+    font-family: Circular, Helvetica, Arial, sans-serif;
+    color: white;
 }
 
-#title {
-    color: white;
-    font-family: Circular, Helvetica, Arial, sans-serif;
-    margin-bottom: 10px;
+#header-bar-container {
+    height: auto;
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+#header-bar-container > #header-title {
+    margin: 0;
     padding-left: 5px;
 }
 
+#header-bar-container > #settings-button {
+    padding-left: 5px;
+    padding-right: 5px;
+
+    background-color: transparent;
+    border: none;
+    color: gray;
+    cursor: pointer;
+    outline: none;
+}
+
+#header-bar-container > #settings-button:hover {
+    color: white;
+    transition: 0.25s;
+}
+
 .divider {
-    width: auto;
     height: 5px;
-    margin-bottom: 10px;
+    width: auto;
+    margin-top: 10px;
     background-color: #1DB954;
 }
 
-#track-panel {
-    display: flex;
-    flex-direction: row;
-    background-color: #373737 ;
-    border: #252525 ;
-    border-radius: 5px;
-    padding: 10px;
+#content-container {
+    height: auto;
+    width: 100%;
+    margin-top: 20px;
 }
 
-#track-panel:hover {
+#playing-container {
+    height: auto;
+    width: 100%;
+    display: none;
+}
+
+#playing-container > #track-panel {
+    padding: 10px;
+
+    display: flex;
+    flex-direction: row;
+
+    background-color: #373737;
+    border: #252525;
+    border-radius: 5px;
+}
+
+#playing-container > #track-panel:hover {
     cursor: pointer;
     background-color: #1DB954;
     transition-duration: 0.2s;
 }
 
-#track-info {
-    color: white;
-    font-family: Circular, Helvetica, Arial, sans-serif;
-    margin: auto auto 5px 15px;
+#track-panel > #track-info-panel {
+    margin-left: 15px;
 }
 
-#track-name {
+#track-panel > #track-info-panel > #track-name {
+    margin: 0;
+    padding-top: 15px;
+
     font-size: 22px;
-    margin-top: 15px;
-    margin-bottom: 5px;
 }
 
-#artist-name {
+#track-panel > #track-info-panel > #artist-name {
+    margin: 0;
+    padding-top: 5px;
+
     color: gray;
-    margin-top: 5px;
-    margin-bottom: auto;
+}
+
+#add-panel {
+    margin-top: 20px;
+
+    display: flex;
+    justify-content: center;
+}
+
+#add-panel > #playlists-dropdown {
+    width: 65%;
+
+    background-color: #373737;
+    border: #252525;
+    color: white;
+    cursor: pointer;
+    outline: none;
+}
+
+#add-panel > #add-button {
+    height: 25px;
+    width: 50px;
+    margin-left: 10px;
+
+    background-color: #1DB954;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-family: Circular, Helvetica, Arial, sans-serif;
+    font-weight: bold;
+    outline: none;
+}
+
+#add-panel > #add-button:hover {
+    background-color: white;
+    color: black;
+    transition: 0.25s;
+}
+
+#holder-container {
+    height: auto;
+    width: 100%;
+    display: none;
+
+    text-align: center;
+    margin: auto;
+}
+
+#holder-container > #holder-title {
+    font-size: 20px;
+}
+
+#holder-container > #holder-subtext {
+    margin: 0;
+
+    font-size: 16px;
 }
