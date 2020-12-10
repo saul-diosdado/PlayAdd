@@ -12,37 +12,39 @@ const regexYTVideoURL = /https:\/\/www\.youtube\.com\/watch\?\S*/gm;
 
 const DOMAIN_BACKEND = "http://localhost:3000";
 
-// Chrome.storage.local keys.
-const ACCESS_TOKEN_KEY = "access_token";
-const REFRESH_TOKEN_KEY = "refresh_token";
+/**
+ * Event listener that fires when a Google Chrome window is opened.
+ */
+chrome.windows.onCreated.addListener((window) => {
+    // Check if the user is logged in. If so, don't show the login popup and refersh the access token.
+    chrome.storage.local.get("login_status", (item) => {
+        if (item.login_status == "true") {
+            chrome.browserAction.setPopup({popup: "holder.html"});
+            spotifyRefreshToken();
+        }
+    });
+});
 
-// Listens to changes in browser URL.
+/**
+ * Listens to changes in browser URL.
+ */
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     // Check if a YouTube video is being watched.
     chrome.tabs.query({active: true, lastFocusedWindow: true}, (tabs) => {
         if (regexYTVideoURL.exec(tabs[0].url) || regexYTVideoURL.exec(tab.url)) {
-            console.log("Watching a YouTube video!");
-            
-            // Check the login state of the user and set the popup accordingly.
-            chrome.storage.local.get("isLoggedIn", (item) => {
-                if (item.isLoggedIn) {
+            // A YouTube video is being watched, set the popup to the Spotify popup.
+            chrome.storage.local.get("login_status", (item) => {
+                if (item.login_status == "true") {
                     chrome.browserAction.setPopup({tabId: tabId, popup: "popup.html"});
-                } else {
-                    chrome.browserAction.setPopup({tabId: tabId, popup: "login.html"});
-                }
-            });
-        } else {
-            // If a YouTube video is not being watched and the user is logged in, show the holder popup.
-            chrome.storage.local.get("isLoggedIn", (item) => {
-                if (item.isLoggedIn) {
-                    chrome.browserAction.setPopup({tabId: tabId, popup: "holder.html"});
                 }
             });
         }
     });
 });
 
-// Listen to messages.
+/**
+ * Listens to messages from other scripts.
+ */
 chrome.runtime.onMessage.addListener(
     (request, sender, sendResponse) => {
         if (request.message == "login") {
@@ -50,6 +52,9 @@ chrome.runtime.onMessage.addListener(
             sendResponse({message: "success"});
         } else if (request.message == "refresh") {
             spotifyRefreshToken();
+            sendResponse({message: "success"});
+        } else if (request.message == "logout") {
+            spotifyLogout();
             sendResponse({message: "success"});
         }
     }
@@ -71,11 +76,14 @@ function spotifyLoginAuthorization() {
         let queryParameters = queryURLToJSON(redirectURI);
 
         // Store the tokens into storage.
-        chrome.storage.local.set({ACCESS_TOKEN_KEY: queryParameters.access_token}, () => {
-            console.log("Access token stored!");
+        chrome.storage.local.set({"access_token": queryParameters.access_token}, () => {
+            console.log("Access token stored.");
         });
-        chrome.storage.local.set({REFRESH_TOKEN_KEY: queryParameters.refresh_token}, () => {
-            console.log("Refresh token stored!");
+        chrome.storage.local.set({"refresh_token": queryParameters.refresh_token}, () => {
+            console.log("Refresh token stored.");
+        });
+        chrome.storage.local.set({"login_status": "true"}, () => {
+            console.log("Logged in.")
         });
     });
 }
@@ -84,7 +92,7 @@ function spotifyLoginAuthorization() {
  * Refresh the access token using the refresh token.
  */
 function spotifyRefreshToken() {
-    chrome.storage.local.get(REFRESH_TOKEN_KEY, (item) => {
+    chrome.storage.local.get("refresh_token", (item) => {
         // Query parameters for making a request to the backend server.
         const refreshEndpoint = DOMAIN_BACKEND + "/api/spotify/refresh/";
         const refreshToken = item.refresh_token;
@@ -100,21 +108,31 @@ function spotifyRefreshToken() {
                 // Upon receiving a response, store the new access token.
                 let response = JSON.parse(xmlHTTP.responseText);
 
-                console.log(response);
-
                 // Store the tokens into storage.
-                chrome.storage.local.set({ACCESS_TOKEN_KEY: response.access_token}, () => {
-                    console.log("Access token stored!");
+                chrome.storage.local.set({"access_token": response.access_token}, () => {
+                    console.log("Refreshed access token stored.");
                 });
-                // Sometimes we will also get a new refresh token from Spotify, if so store the new refresh token.
+                // Sometimes we will also get a new refresh token from Spotify. If so, store the new refresh token.
                 if (response.hasOwnProperty("refresh_token")) {
-                    chrome.storage.local.set({REFRESH_TOKEN_KEY: response.refresh_token}, () => {
-                        console.log("Refresh token stored!");
+                    chrome.storage.local.set({"refresh_token": response.refresh_token}, () => {
+                        console.log("Refreshed refresh token stored.");
                     });
                 }
             }
         }
         xmlHTTP.send();
+    });
+}
+
+/**
+ * Removes access and refresh token keys from chrome.storage and changes login status in chrome.storage.
+ */
+function spotifyLogout() {
+    chrome.storage.local.remove(["access_token", "refresh_token"], () => {
+        console.log("Erased tokens.")
+    });
+    chrome.storage.local.set({"login_status": "false"}, () => {
+        console.log("Logged out.");
     });
 }
 
