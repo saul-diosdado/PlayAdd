@@ -38,19 +38,15 @@ const SPOTIFY_REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI || "http://localho
  * we need the user to give us permission for. The following is a list of the scopes 
  * along with a description of what they will be used for.
  * 
- * streaming: for Playback SDK
- * user-read-email: for Playback SDK
- * user-read-private: for Playback SDK
- * user-read-playback-state: for Playback SDK
- * user-modify-playback-state: For all playback controls such as play, pause, next, previous, etc.
+ * playlist-modify-public: Modify the user's public playlists.
+ * playlist-modify-private: Modify the user's private playlists.
  * playlist-read-private: For getting the user's private playlists.
- * playlist-read-collaborative: For getting the user's "Collaborative" playlists.
  */
 app.get("/api/spotify/login/", (req, res) => {
     // Parameters for authorization.
     let authEndpoint = "https://accounts.spotify.com/authorize";
     let responseType = "code";
-    let scope = "streaming user-read-email user-read-private user-read-playback-state user-modify-playback-state playlist-read-private playlist-read-collaborative";
+    let scope = "playlist-modify-public playlist-modify-private playlist-read-private";
 
     // Full authorization URL with parameters.
     let authorizeURL = authEndpoint + 
@@ -94,6 +90,8 @@ app.get("/api/spotify/callback/", (req, res) => {
             }
         }).then(response => {
             // Redirect the user back with the tokens as query parameters.
+            console.log("Login response");
+            console.log(response.data);
             res.redirect(DOMAIN_FRONT_END + "?" + querystring.stringify(response.data));
         }).catch(error => {
             console.log(error);
@@ -125,9 +123,9 @@ app.get("/api/spotify/refresh/", (req, res) => {
             "Content-Type": "application/x-www-form-urlencoded"
         }
     }).then(response => {
-        // For preventing a CORS error.
-        res.setHeader("Access-Control-Allow-Origin", DOMAIN_FRONT_END);
         // Send the response from Spotify as a response to this request.
+        console.log("Refresh response");
+        console.log(response.data);
         res.json(response.data);
     }).catch(error => {
         console.log(error);
