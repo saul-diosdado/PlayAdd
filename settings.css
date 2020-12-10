@@ -1,0 +1,68 @@
+body {
+    height: 100%;
+    width: auto;
+    margin: 20px;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: #191414;
+    border-color: #191414;
+    color: white;
+    font-family: Circular, Helvetica, Arial, sans-serif;
+}
+
+#center-container {
+    width: 40%;
+}
+
+#center-container > #header-bar-container {
+    width: 100%;
+}
+
+#header-bar-container > #header-title {
+    margin: 0;
+}
+
+.divider {
+    height: 5px;
+    width: auto;
+    margin-top: 10px;
+    background-color: #1DB954;
+}
+
+.setting-panel {
+    margin-bottom: 20px;
+    margin-top: 10px;
+    display: flex;
+    color: darkgray;
+}
+
+.title-panel {
+    width: 30%;
+    padding-top: 20px;
+
+    font-size: 22px;
+    font-weight: bold;
+}
+
+#login-status-panel > #spotify-logout-button {
+    height: 40px;
+    width: 200px;
+
+    background-color: #1DB954;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    outline: none;
+}
+
+#login-status-panel > #spotify-logout-button:hover {
+    background-color: white;
+    color: black;
+    transition: 0.25s;
+}
