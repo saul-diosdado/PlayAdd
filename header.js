@@ -1,6 +1,7 @@
 /*
-    File: popup.js
-    Purpose: General purpose script for adding actions to buttons on the popup.html.
+    File: header.js
+    Purpose: General purpose script for adding actions to buttons on the header bar,
+        mainly the settings buttons.
 */
 
 /*--------------------------------------------------------------------------*/

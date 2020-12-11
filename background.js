@@ -20,7 +20,7 @@ chrome.windows.onCreated.addListener((window) => {
     // Check if the user is logged in. If so, don't show the login popup and refersh the access token.
     chrome.storage.local.get("login_status", (item) => {
         if (item.login_status) {
-            chrome.browserAction.setPopup({popup: "popup.html"});
+            chrome.browserAction.setPopup({popup: "holder.html"});
             spotifyRefreshToken();
         }
     });
@@ -34,10 +34,32 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
         // Monitor changes to login status. Change the popup accordingly.
         if (key == "login_status") {
             if (changes.login_status.newValue) {
-                chrome.browserAction.setPopup({popup: "popup.html"});
+                // User is logged in, set the popup according to if a YouTube video is being watched.
+                chrome.storage.local.get("is_watching_yt_video", (item) => {
+                    if (item.is_watching_yt_video) {
+                        chrome.browserAction.setPopup({popup: "popup.html"});
+                    } else {
+                        chrome.browserAction.setPopup({popup: "holder.html"});
+                    }
+                });
             } else {
                 chrome.browserAction.setPopup({popup: "login.html"});
             }
+        }
+
+        // Monitor changes to watching a YouTube video.
+        if (key == "is_watching_yt_video") {
+            chrome.storage.local.get("login_status", (item) => {
+                if (item.login_status) {
+                    if (changes.is_watching_yt_video.newValue) {
+                        chrome.browserAction.setPopup({popup: "popup.html"});
+                    } else {
+                        chrome.browserAction.setPopup({popup: "holder.html"});
+                    }
+                } else {
+                    chrome.browserAction.setPopup({popup: "login.html"});
+                }
+            });
         }
     }
 });

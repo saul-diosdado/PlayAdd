@@ -1,0 +1,28 @@
+body {
+    height: auto;
+    width: 275px;
+    margin: 15px;
+
+    background-color: #191414;
+    border-color: #191414;
+    font-family: Circular, Helvetica, Arial, sans-serif;
+    color: white;
+}
+
+#holder-container {
+    height: auto;
+    width: 100%;
+
+    text-align: center;
+    margin: auto;
+}
+
+#holder-container > #holder-title {
+    font-size: 20px;
+}
+
+#holder-container > #holder-subtext {
+    margin: 0;
+
+    font-size: 16px;
+}
