@@ -33,7 +33,7 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
     for (key in changes) {
         // Monitor changes to login status. Change the popup accordingly.
         if (key == "login_status") {
-            if (changes.login_status) {
+            if (changes.login_status.newValue) {
                 chrome.browserAction.setPopup({popup: "popup.html"});
             } else {
                 chrome.browserAction.setPopup({popup: "login.html"});
