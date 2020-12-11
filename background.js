@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------------*/
 
 // Matches any YouTube video URL (note the "/watch?")
-const regexYTVideoURL = /https:\/\/www\.youtube\.com\/watch\?\S*/gm;
+const regexYTVideoURL = new RegExp("https:\/\/www\.youtube\.com\/watch\?\S*");
 
 const DOMAIN_BACKEND = "http://localhost:3000";
 const EXTENSION_ID = "lbaglokofickglbhmfkaimnafhghohhh";
@@ -19,7 +19,7 @@ const EXTENSION_ID = "lbaglokofickglbhmfkaimnafhghohhh";
 chrome.windows.onCreated.addListener((window) => {
     // Check if the user is logged in. If so, don't show the login popup and refersh the access token.
     chrome.storage.local.get("login_status", (item) => {
-        if (item.login_status == "true") {
+        if (item.login_status) {
             chrome.browserAction.setPopup({popup: "popup.html"});
             spotifyRefreshToken();
         }
@@ -27,27 +27,34 @@ chrome.windows.onCreated.addListener((window) => {
 });
 
 /**
+ * Event listener that monitors changes to chrome.storage keys.
+ */
+chrome.storage.onChanged.addListener((changes, namespace) => {
+    for (key in changes) {
+        // Monitor changes to login status. Change the popup accordingly.
+        if (key == "login_status") {
+            if (changes.login_status) {
+                chrome.browserAction.setPopup({popup: "popup.html"});
+            } else {
+                chrome.browserAction.setPopup({popup: "login.html"});
+            }
+        }
+    }
+});
+
+/**
  * Listens to changes in browser URL.
  */
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    // Check if a YouTube video is being watched.
-    chrome.tabs.query({active: true, lastFocusedWindow: true}, (tabs) => {
-        if (regexYTVideoURL.exec(tabs[0].url) || regexYTVideoURL.exec(tab.url)) {
-            // A YouTube video is being watched, set the popup to the Spotify popup.
-            chrome.storage.local.get("login_status", (item) => {
-                if (item.login_status == "true") {
-                    chrome.browserAction.setPopup({tabId: tabId, popup: "popup.html"});
-                }
-            });
-        }
-    });
+    if (changeInfo.status == "complete") {
+        chrome.storage.local.set({"is_watching_yt_video": regexYTVideoURL.test(tab.url)});
+    }
 });
 
 /**
  * Listens to messages from other scripts.
  */
-chrome.runtime.onMessage.addListener(
-    (request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         if (request.message == "login") {
             spotifyLoginAuthorization();
             sendResponse({message: "success"});
@@ -83,7 +90,7 @@ function spotifyLoginAuthorization() {
         chrome.storage.local.set({"refresh_token": queryParameters.refresh_token}, () => {
             console.log("Refresh token stored.");
         });
-        chrome.storage.local.set({"login_status": "true"}, () => {
+        chrome.storage.local.set({"login_status": true}, () => {
             console.log("Logged in.")
         });
 
@@ -135,7 +142,7 @@ function spotifyLogout() {
     chrome.storage.local.remove(["access_token", "refresh_token"], () => {
         console.log("Erased tokens.")
     });
-    chrome.storage.local.set({"login_status": "false"}, () => {
+    chrome.storage.local.set({"login_status": false}, () => {
         console.log("Logged out.");
     });
 }
