@@ -1,7 +1,7 @@
-/*
-    File: popup.js
-    Purpose: Script that makes API calls to Spotify.
-*/
+/**
+ * File: popup.js
+ * Purpose: Script that makes API calls to Spotify.
+ */
 
 /*--------------------------------------------------------------------------*/
 /* HTML ELEMENTS */

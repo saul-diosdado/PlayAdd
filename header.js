@@ -1,8 +1,8 @@
-/*
-    File: header.js
-    Purpose: General purpose script for adding actions to buttons on the header bar,
-        mainly the settings buttons.
-*/
+/**
+ * File: header.js
+ * Purpose: General purpose script for adding actions to buttons on the header bar,
+ * mainly the settings buttons.
+ */
 
 /*--------------------------------------------------------------------------*/
 /* CONSTANTS */
