@@ -12,11 +12,33 @@ let trackNameElement = document.getElementById("track-name");
 let artistNameElement = document.getElementById("artist-name");
 let trackPanelElement = document.getElementById("track-panel");
 let userPlaylistsElement = document.getElementById("playlists-dropdown");
+let addButtonElement = document.getElementById("add-button");
 
+/**
+ * Makes the entire track panel div clickable. Opens the currently playing song in Spotify.
+ */
 trackPanelElement.addEventListener("click", () => {
     chrome.storage.local.get("spotify_track_url", (item) => {
+        // Only make the div a hyperlink to the song when a song was found in the Spotify search query.
         if (item.spotify_track_url != null) {
             window.open(item.spotify_track_url);
+        }
+    });
+});
+
+/**
+ * Add button adds the currently playing song to the selected playlist.
+ */
+addButtonElement.addEventListener("click", () => {
+    chrome.storage.local.get("spotify_track_uri", (item) => {
+        if (item.spotify_track_uri != null) {
+            // A song was found by th Spotify search query.
+            let selectedPlaylistID = userPlaylistsElement.value;
+            let currentlyPlayingTrackURI = item.spotify_track_uri;
+            spotifyPlaylistAdd(selectedPlaylistID, currentlyPlayingTrackURI)
+        } else {
+            // A soung was not found by the Spotify search query.
+            
         }
     });
 });
@@ -29,6 +51,37 @@ chrome.storage.local.get("yt_video_title", (item) => {
     spotifySearch(parseTitle(item.yt_video_title));
     spotifyGetUserURI(spotifyGetUserPlaylists, spotifyUpdatePlaylistsUI);
 });
+
+/*--------------------------------------------------------------------------*/
+/* SPOTIFY FUNCTIONS AND RESPECTIVE UI */
+/*--------------------------------------------------------------------------*/
+
+/**
+ * Adds a song to a playlist.
+ * @param {string} playlistID The ID of the selected playlist fromm the drop-down menu.
+ * @param {string} trackURI The Spotify URI of the currently playing song.
+ */
+function spotifyPlaylistAdd(playlistID, trackURI) {
+    const addEndpoint = "https://api.spotify.com/v1/playlists";
+    const position = 0;
+
+    const addURL = addEndpoint +
+            "/" + playlistID +
+            "/tracks?uris=" + encodeURIComponent(trackURI) +
+            "&position=" + position;
+
+    chrome.storage.local.get("access_token", (item) => {
+        let xmlHTTP = new XMLHttpRequest();
+        xmlHTTP.open("POST", addURL, true);
+        xmlHTTP.setRequestHeader("Authorization", "Bearer " + item.access_token);
+        xmlHTTP.onreadystatechange = () => {
+            if (xmlHTTP.readyState === 4 && xmlHTTP.status === 201) {
+                alert("Added to playlist!");
+            }
+        }
+        xmlHTTP.send();
+    });
+}
 
 // Call spotify API "search" endpoint which returns a list of tracks in JSON. 
 function spotifySearch(title) {
@@ -159,11 +212,11 @@ function spotifyGetUserPlaylists(userURI, callbackUpdateUI) {
  */
 function spotifyUpdatePlaylistsUI(playlists) {
     // Iterate through all of the user's playlists.
-    for (let i = 0; i < playlists.length; i++) {
+    for (playlist of playlists) {
         // Construct the drop-down option.
         let option = document.createElement("option");
-        option.value = playlists[i].uri;
-        option.text = playlists[i].name;
+        option.value = playlist.id;
+        option.text = playlist.name;
 
         // Append the drop-down option to the drop-down menu.
         userPlaylistsElement.appendChild(option);
