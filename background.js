@@ -57,6 +57,7 @@ chrome.browserAction.onClicked.addListener(() => {
                     chrome.storage.local.set({"yt_video_title": tab[0].title});
                 } else {
                     chrome.browserAction.setPopup({popup: ""});
+                    chrome.browserAction.disable(tab[0].id);
                     chrome.storage.local.remove(["yt_video_title"]);
                 }
             } else {

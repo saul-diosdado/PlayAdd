@@ -187,7 +187,6 @@ function spotifyGetUserPlaylists(userURI, callbackUpdateUI) {
             if (xmlHTTP.readyState === 4 && xmlHTTP.status === 200) {
                 // An array of all playlists the user has (including ones they only follow).
                 let allUserPlaylists = JSON.parse(xmlHTTP.response).items;
-                console.log(allUserPlaylists);
 
                 // Filter the playlists retrieved from API to only show the playlists the user created.
                 let userCreatedPlaylists = [];
