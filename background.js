@@ -17,59 +17,46 @@ const EXTENSION_ID = "lbaglokofickglbhmfkaimnafhghohhh";
  * Event listener that fires when a Google Chrome window is opened.
  */
 chrome.windows.onCreated.addListener((window) => {
-    // Check if the user is logged in. If so, don't show the login popup and refersh the access token.
+    // Check if the user is logged in. If so, go ahead and refresh the access token.
     chrome.storage.local.get("login_status", (item) => {
         if (item.login_status) {
-            chrome.browserAction.setPopup({popup: "holder.html"});
             spotifyRefreshToken();
         }
     });
 });
 
 /**
- * Event listener that monitors changes to chrome.storage keys.
+ * Event listener when the Chrome extension is clicked in the navigation bar.
  */
-chrome.storage.onChanged.addListener((changes, namespace) => {
-    for (key in changes) {
-        // Monitor changes to login status. Change the popup accordingly.
-        if (key == "login_status") {
-            if (changes.login_status.newValue) {
-                // User is logged in, set the popup according to if a YouTube video is being watched.
-                chrome.storage.local.get("is_watching_yt_video", (item) => {
-                    if (item.is_watching_yt_video) {
-                        chrome.browserAction.setPopup({popup: "popup.html"});
-                    } else {
-                        chrome.browserAction.setPopup({popup: "holder.html"});
-                    }
-                });
+chrome.browserAction.onClicked.addListener(() => {
+    chrome.tabs.query({active: true, currentWindow: true}, (tab) => {
+        // Check if the user is logged in. If not, show the login popup.
+        chrome.storage.local.get("login_status", (item) => {
+            if (item.login_status) {
+                // Check if a YouTube video is being watched.
+                if (regexYTVideoURL.test(tab[0].url)) {
+                    chrome.browserAction.setPopup({popup: "popup.html"});
+                    chrome.storage.local.set({"yt_video_title": tab[0].title}, () => {
+                        console.log(tab[0].title + " stored.");
+                    });
+                } else {
+                    chrome.browserAction.setPopup({popup: ""});
+                    chrome.storage.local.remove(["yt_video_title"]);
+                }
             } else {
                 chrome.browserAction.setPopup({popup: "login.html"});
             }
-        }
-
-        // Monitor changes to watching a YouTube video.
-        if (key == "is_watching_yt_video") {
-            chrome.storage.local.get("login_status", (item) => {
-                if (item.login_status) {
-                    if (changes.is_watching_yt_video.newValue) {
-                        chrome.browserAction.setPopup({popup: "popup.html"});
-                    } else {
-                        chrome.browserAction.setPopup({popup: "holder.html"});
-                    }
-                } else {
-                    chrome.browserAction.setPopup({popup: "login.html"});
-                }
-            });
-        }
-    }
+        });
+    });
 });
 
 /**
- * Listens to changes in browser URL.
+ * Event listener which fires upon any change to a tab.
  */
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    // When a new page is loaded, set the popup to none so that the browserAction.onClicked can now fire.
     if (changeInfo.status == "complete") {
-        chrome.storage.local.set({"is_watching_yt_video": regexYTVideoURL.test(tab.url)});
+        chrome.browserAction.setPopup({popup: ""});
     }
 });
 
