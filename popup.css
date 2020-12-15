@@ -37,6 +37,11 @@ body {
     transition-duration: 0.2s;
 }
 
+#track-panel > #track-art {
+    height: 96px;
+    width: 96px;
+}
+
 #track-panel > #track-info-panel {
     margin-left: 15px;
 }

@@ -14,7 +14,9 @@ let trackPanelElement = document.getElementById("track-panel");
 
 trackPanelElement.addEventListener("click", () => {
     chrome.storage.local.get("spotify_track_url", (item) => {
-        window.open(item.spotify_track_url);
+        if (item.spotify_track_url != null) {
+            window.open(item.spotify_track_url);
+        }
     });
 });
 
@@ -43,6 +45,9 @@ function spotifySearch(title) {
             if (xmlHTTP.readyState === 4 && xmlHTTP.status === 200) {
                 if (JSON.parse(xmlHTTP.responseText).tracks.items.length === 0) {
                     console.log("Sorry, couldn't find this song on Spotify.");
+
+                    // Since no Spotify track was found, delete the Spotify data keys from storage.
+                    chrome.storage.local.remove(["spotify_track_url", "spotify_track_uri"]);
                 } else {
                     // Gather information from response.
                     let trackObject = JSON.parse(xmlHTTP.responseText).tracks.items[0];
