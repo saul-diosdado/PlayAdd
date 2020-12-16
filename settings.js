@@ -11,32 +11,7 @@ const spotifyLoginStatusElement = document.getElementById("login-status-text");
 const spotifyEmailElement = document.getElementById("spotify-email-text");
 const spotifyButtonElement = document.getElementById("spotify-button");
 
-/**
- * When this script is first ran, set the UI based on the login status of the user.
- */
-chrome.storage.local.get("login_status", (item) => {
-    if (item.login_status) {
-        setUIUserIsLoggedIn();
-    } else {
-        setUIUserIsLoggedOut();
-    }
-});
-
-/**
- * Continuously monitor changes to login status and change UI based on it. 
- */
-chrome.storage.onChanged.addListener((changes, namespace) => {
-    for (key in changes) {
-        if (key === "login_status") {
-            // If the user is now logged in.
-            if (changes.login_status.newValue) {
-                setUIUserIsLoggedIn();
-            } else {
-                setUIUserIsLoggedOut();
-            }
-        }
-    }
-});
+const extensionVersionElement = document.getElementById("extension-version-text");
 
 /**
  * Tell the background.js script to start the login process or to logout the user, depending
@@ -52,6 +27,37 @@ spotifyButtonElement.addEventListener("click", () => {
             chrome.runtime.sendMessage({message: "login"});
         }
     })
+});
+
+
+/**
+ * When this script is first ran, set the UI based on the login status of the user.
+ */
+chrome.storage.local.get("login_status", (item) => {
+    if (item.login_status) {
+        setUIUserIsLoggedIn();
+    } else {
+        setUIUserIsLoggedOut();
+    }
+});
+
+// When the script is first ran, display the version number of the extension.
+extensionVersionElement.innerText = chrome.runtime.getManifest().version;
+
+/**
+ * Continuously monitor changes to login status and change UI based on it. 
+ */
+chrome.storage.onChanged.addListener((changes, namespace) => {
+    for (key in changes) {
+        if (key === "login_status") {
+            // If the user is now logged in.
+            if (changes.login_status.newValue) {
+                setUIUserIsLoggedIn();
+            } else {
+                setUIUserIsLoggedOut();
+            }
+        }
+    }
 });
 
 /**
