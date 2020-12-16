@@ -60,6 +60,10 @@ spotifyButtonElement.addEventListener("click", () => {
 function setUIUserIsLoggedIn() {
     spotifyLoginStatusElement.innerText = "Yes";
     spotifyButtonElement.innerText = "Logout of Spotify";
+    // Make an API request to get the user's email and update the UI.
+    spotifyGetEmail((email) => {
+        spotifyEmailElement.innerText = email;
+    });
 }
 
 /**
@@ -68,4 +72,29 @@ function setUIUserIsLoggedIn() {
 function setUIUserIsLoggedOut() {
     spotifyLoginStatusElement.innerText = "No";
     spotifyButtonElement.innerText = "Connect to Spotify";
+    spotifyEmailElement.innerText = "N/A";
+}
+
+/**
+ * Makes an API request to Spotify to retrieve the Spotify profile of the user.
+ * When the response is received, update the UI with the email.
+ * @param {function} callback Function that updates the UI given the email.
+ */
+function spotifyGetEmail(callback) {
+    const profileEndpoint = "https://api.spotify.com/v1/me";
+
+    chrome.storage.local.get("access_token", (item) => {
+        let xmlHTTP = new XMLHttpRequest();
+        xmlHTTP.open("GET", profileEndpoint, true);
+        xmlHTTP.setRequestHeader("Authorization", "Bearer " + item.access_token);
+        xmlHTTP.onreadystatechange = () => {
+            if (xmlHTTP.readyState === 4 && xmlHTTP.status === 200) {
+                let userObject = JSON.parse(xmlHTTP.response);
+                console.log(userObject);
+                // Update the email UI field with the user's email.
+                callback(userObject.email);
+            }
+        }
+        xmlHTTP.send();
+    });
 }
