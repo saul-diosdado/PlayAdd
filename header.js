@@ -4,13 +4,7 @@
  * mainly the settings buttons.
  */
 
-/*--------------------------------------------------------------------------*/
-/* CONSTANTS */
-/*--------------------------------------------------------------------------*/
-
-const EXTENSION_ID = "lbaglokofickglbhmfkaimnafhghohhh";
-
 // Open the settings page.
 document.getElementById("settings-button").addEventListener("click", () => {
-    window.open("chrome-extension://" + EXTENSION_ID + "/settings.html");
+    window.open("chrome-extension://" + chrome.runtime.id + "/settings.html");
 });
