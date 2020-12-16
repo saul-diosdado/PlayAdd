@@ -10,7 +10,7 @@
 // Matches any YouTube video URL (note the "/watch?")
 const regexYTVideoURL = new RegExp("https:\/\/www\.youtube\.com\/watch\?\S*");
 
-const DOMAIN_BACKEND = "http://localhost:3000";
+const DOMAIN_BACKEND = "https://playadd-for-spotify.herokuapp.com";
 
 // The time between refreshing the access token (45 minutes).
 const TOKEN_REFRESH_TIME = 2700000;
@@ -90,7 +90,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
  */
 function spotifyLoginAuthorization() {
     chrome.identity.launchWebAuthFlow({
-        url: "http://localhost:3000/api/spotify/login/",
+        url: DOMAIN_BACKEND + "/api/spotify/login/",
         interactive: true
     }, (redirectURI) => {
         // Parse the URL query parameters into a JSON.

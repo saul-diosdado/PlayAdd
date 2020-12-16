@@ -96,7 +96,6 @@ function spotifyGetEmail(callback) {
         xmlHTTP.onreadystatechange = () => {
             if (xmlHTTP.readyState === 4 && xmlHTTP.status === 200) {
                 let userObject = JSON.parse(xmlHTTP.response);
-                console.log(userObject);
                 // Update the email UI field with the user's email.
                 callback(userObject.email);
             }
