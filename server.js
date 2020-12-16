@@ -1,8 +1,8 @@
-/*
-    File: server.js
-    Purpose: Implementing the Spotify "Authorization Code Flow" for long-lasting authorization with Spotify.
-        Also used for refreshing the access token using the refresh token provided.
-*/
+/**
+ * File: server.js
+ * Purpose: Implementing the Spotify "Authorization Code Flow" for long-lasting authorization with Spotify.
+ * Also used for refreshing the access token using the refresh token provided.
+ */
 
 /*--------------------------------------------------------------------------*/
 /* IMPORTS */
@@ -27,7 +27,7 @@ const PORT = process.env.PORT || 3000;
 // Domains for our the backend and the frontend.
 const DOMAIN_FRONT_END = process.env.EXTENSION_DOMAIN;
 // The URI to redirect after user grants permission. This URI must be registered with Spotify.
-const SPOTIFY_REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI || "http://localhost:3000/api/spotify/callback";
+const SPOTIFY_REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI || "http://localhost:3000/api/spotify/callback/";
 
 /**
  * User is redirected here after clicking a login button. This method will simply
@@ -90,8 +90,6 @@ app.get("/api/spotify/callback/", (req, res) => {
             }
         }).then(response => {
             // Redirect the user back with the tokens as query parameters.
-            console.log("Login response");
-            console.log(response.data);
             res.redirect(DOMAIN_FRONT_END + "?" + querystring.stringify(response.data));
         }).catch(error => {
             console.log(error);
@@ -124,8 +122,6 @@ app.get("/api/spotify/refresh/", (req, res) => {
         }
     }).then(response => {
         // Send the response from Spotify as a response to this request.
-        console.log("Refresh response");
-        console.log(response.data);
         res.json(response.data);
     }).catch(error => {
         console.log(error);
@@ -135,6 +131,4 @@ app.get("/api/spotify/refresh/", (req, res) => {
 // Serves the static HTML pages.
 app.use(express.static(__dirname));
 
-app.listen(PORT, () => {
-    console.log("Listening to " + PORT);
-});
+app.listen(PORT, () => {});

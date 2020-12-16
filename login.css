@@ -1,40 +1,41 @@
 body {
-    background-color: #191414;
-    width: 175px;
-    height: 150px;
-    margin: 20px;
-}
-
-h3 {
+    height: auto;
+    width: 225px;
     margin: 15px;
+
+    background-color: #191414;
+    font-family: Circular, Helvetica, Arial, sans-serif;
 }
 
 .login {
     color: white;
-    font-family: Circular, Helvetica, Arial, sans-serif;
     font-size: 20px;
     text-align: center;
     margin: auto;
 }
 
+#login-title {
+    margin: 0;
+
+    font-size: 22px;
+}
+
 #login-button {
-    background-color: white;
-    border: #1DB954;
-    border-radius: 500px;
-    color: #191414;
-    padding: 15px 32px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    font-family: Circular, Helvetica, Arial, sans-serif;
-    font-weight: bold;
-    margin: 4px 2px;
+    width: 200px;
+    height: 40px;
+    margin-top: 15px;
+
+    background-color: #1DB954;
+    border: none;
+    border-radius: 5px;
+    color: white;
     cursor: pointer;
-    transition-duration: 0.4s;
+    font-size: 16px;
+    font-weight: bold;
 }
 
 #login-button:hover {
-    background-color: #1DB954;
-    color: white;
+    background-color: white;
+    color: black;
+    transition: 0.25s;
 }

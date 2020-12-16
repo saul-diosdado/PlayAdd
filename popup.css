@@ -1,54 +1,99 @@
 body {
+    height: auto;
+    width: 275px;
+    margin: 15px;
+
     background-color: #191414;
     border-color: #191414;
-    width: 275px;
-    height: auto;
-    margin: 20px;
-}
-
-#title {
-    color: white;
     font-family: Circular, Helvetica, Arial, sans-serif;
-    margin-bottom: 10px;
-    padding-left: 5px;
+    color: white;
 }
 
-.divider {
-    width: auto;
-    height: 5px;
-    margin-bottom: 10px;
-    background-color: #1DB954;
+#content-container {
+    height: auto;
+    width: 100%;
+    margin-top: 20px;
 }
 
-#track-panel {
+#playing-container {
+    height: auto;
+    width: 100%;
+}
+
+#playing-container > #track-panel {
+    padding: 10px;
+
     display: flex;
     flex-direction: row;
-    background-color: #373737 ;
-    border: #252525 ;
+
+    background-color: #373737;
+    border: #252525;
     border-radius: 5px;
-    padding: 10px;
 }
 
-#track-panel:hover {
+#playing-container > #track-panel:hover {
     cursor: pointer;
     background-color: #1DB954;
     transition-duration: 0.2s;
 }
 
-#track-info {
-    color: white;
-    font-family: Circular, Helvetica, Arial, sans-serif;
-    margin: auto auto 5px 15px;
+#track-panel > #track-art {
+    height: 96px;
+    width: 96px;
 }
 
-#track-name {
+#track-panel > #track-info-panel {
+    margin-left: 15px;
+}
+
+#track-panel > #track-info-panel > #track-name {
+    margin: 0;
+    padding-top: 15px;
+
     font-size: 22px;
-    margin-top: 15px;
-    margin-bottom: 5px;
 }
 
-#artist-name {
+#track-panel > #track-info-panel > #artist-name {
+    margin: 0;
+    padding-top: 5px;
+
     color: gray;
-    margin-top: 5px;
-    margin-bottom: auto;
+}
+
+#add-panel {
+    margin-top: 20px;
+
+    display: flex;
+    justify-content: center;
+}
+
+#add-panel > #playlists-dropdown {
+    width: 65%;
+
+    background-color: #373737;
+    border: #252525;
+    color: white;
+    cursor: pointer;
+    outline: none;
+}
+
+#add-panel > #add-button {
+    height: 25px;
+    width: 50px;
+    margin-left: 10px;
+
+    background-color: #1DB954;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-family: Circular, Helvetica, Arial, sans-serif;
+    font-weight: bold;
+    outline: none;
+}
+
+#add-panel > #add-button:hover {
+    background-color: white;
+    color: black;
+    transition: 0.25s;
 }
