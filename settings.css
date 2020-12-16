@@ -22,21 +22,23 @@ body {
 }
 
 #header-bar-container > #header-title {
-    margin: 0;
+    margin-left: 20px;
+    margin-bottom: 12px;
+    margin-top: 0px;
 }
 
 .divider {
     height: 5px;
     width: auto;
-    margin-top: 10px;
     background-color: #1DB954;
 }
 
 .setting-panel {
-    margin-bottom: 20px;
-    margin-top: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
+    padding-bottom: 20px;
+    padding-top: 20px;
     display: flex;
-    color: darkgray;
 }
 
 .title-panel {
@@ -47,9 +49,29 @@ body {
     font-weight: bold;
 }
 
-#login-status-panel > #spotify-logout-button {
+.label-text-panel {
+    display: flex;
+}
+
+label {
+    display: flex;
+    align-items: center;
+
+    color: darkgray;
+}
+
+p {
+    margin-left: 5px;
+    margin-bottom: 6px;
+    margin-top: 6px;
+    color: white;
+}
+
+#login-status-form > #spotify-button {
     height: 40px;
     width: 200px;
+    margin-bottom: 12px;
+    margin-top: 12px;
 
     background-color: #1DB954;
     border: none;
@@ -61,7 +83,7 @@ body {
     outline: none;
 }
 
-#login-status-panel > #spotify-logout-button:hover {
+#login-status-form > #spotify-button:hover {
     background-color: white;
     color: black;
     transition: 0.25s;

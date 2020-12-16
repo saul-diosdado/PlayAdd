@@ -41,12 +41,13 @@ const SPOTIFY_REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI || "http://localho
  * playlist-modify-public: Modify the user's public playlists.
  * playlist-modify-private: Modify the user's private playlists.
  * playlist-read-private: For getting the user's private playlists.
+ * user-read-email: Displaying the user's Spotify email in the settings page.
  */
 app.get("/api/spotify/login/", (req, res) => {
     // Parameters for authorization.
     let authEndpoint = "https://accounts.spotify.com/authorize";
     let responseType = "code";
-    let scope = "playlist-modify-public playlist-modify-private playlist-read-private";
+    let scope = "playlist-modify-public playlist-modify-private playlist-read-private user-read-email";
 
     // Full authorization URL with parameters.
     let authorizeURL = authEndpoint + 
