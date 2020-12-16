@@ -90,7 +90,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
  */
 function spotifyLoginAuthorization() {
     chrome.identity.launchWebAuthFlow({
-        url: "http://localhost:3000/api/spotify/login/",
+        url: DOMAIN_BACKEND + "/api/spotify/login/",
         interactive: true
     }, (redirectURI) => {
         // Parse the URL query parameters into a JSON.
