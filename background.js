@@ -11,7 +11,6 @@
 const regexYTVideoURL = new RegExp("https:\/\/www\.youtube\.com\/watch\?\S*");
 
 const DOMAIN_BACKEND = "http://localhost:3000";
-const EXTENSION_ID = "lbaglokofickglbhmfkaimnafhghohhh";
 
 /*--------------------------------------------------------------------------*/
 /* CHROME API LISTENERS */
@@ -77,7 +76,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     }
 });
 
-
 /*--------------------------------------------------------------------------*/
 /* SPOTIFY FUNCTIONS */
 /*--------------------------------------------------------------------------*/
@@ -99,7 +97,8 @@ function spotifyLoginAuthorization() {
         chrome.storage.local.set({"login_status": true});
 
         // Open the redirect page to show the user that they have successfully connected their Spotify account.
-        window.open("chrome-extension://" + EXTENSION_ID + "/redirect.html");
+
+        window.open("chrome-extension://" + chrome.runtime.id + "/redirect.html");
     });
 }
 
