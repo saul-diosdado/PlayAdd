@@ -4,7 +4,7 @@
  */
 
 /*--------------------------------------------------------------------------*/
-/* CONSTANTS */
+/* CONSTANTS/GLOBAL VARIABLES */
 /*--------------------------------------------------------------------------*/
 
 // Matches any YouTube video URL (note the "/watch?")
@@ -12,9 +12,28 @@ const regexYTVideoURL = new RegExp("https:\/\/www\.youtube\.com\/watch\?\S*");
 
 const DOMAIN_BACKEND = "http://localhost:3000";
 
+// The time between refreshing the access token (45 minutes).
+const TOKEN_REFRESH_TIME = 2700000;
+// Holds the interval object.
+let tokenRefreshInterval = null;
+
 /*--------------------------------------------------------------------------*/
 /* CHROME API LISTENERS */
 /*--------------------------------------------------------------------------*/
+
+/**
+ * Check if the user is logged in. If so, go ahead and refresh the access token.
+ * Note that this only happens when the background script is first ran like when a
+ * new Google Chrome window is opened.
+ */
+chrome.storage.local.get("login_status", (item) => {
+    if (item.login_status) {
+        // Go ahead and refresh the token immediately.
+        spotifyRefreshToken();
+        // Interval to now periodically refresh the token.
+        tokenRefreshInterval = setInterval(spotifyRefreshToken, TOKEN_REFRESH_TIME);
+    }
+});
 
 /**
  * Listens to messages from other scripts.
@@ -22,25 +41,11 @@ const DOMAIN_BACKEND = "http://localhost:3000";
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         if (request.message == "login") {
             spotifyLoginAuthorization();
-        } else if (request.message == "refresh") {
-            spotifyRefreshToken();
-        } else if (request.message == "logout") {
+        }else if (request.message == "logout") {
             spotifyLogout();
         }
     }
 );
-
-/**
- * Event listener that fires when a Google Chrome window is opened.
- */
-chrome.windows.onCreated.addListener((window) => {
-    // Check if the user is logged in. If so, go ahead and refresh the access token.
-    chrome.storage.local.get("login_status", (item) => {
-        if (item.login_status) {
-            spotifyRefreshToken();
-        }
-    });
-});
 
 /**
  * Event listener when the Chrome extension is clicked in the navigation bar.
@@ -96,8 +101,10 @@ function spotifyLoginAuthorization() {
         chrome.storage.local.set({"refresh_token": queryParameters.refresh_token});
         chrome.storage.local.set({"login_status": true});
 
-        // Open the redirect page to show the user that they have successfully connected their Spotify account.
+        // Set an interval to refresh the access token periodically.
+        tokenRefreshInterval = setInterval(spotifyRefreshToken, TOKEN_REFRESH_TIME);
 
+        // Open the redirect page to show the user that they have successfully connected their Spotify account.
         window.open("chrome-extension://" + chrome.runtime.id + "/redirect.html");
     });
 }
@@ -140,6 +147,7 @@ function spotifyRefreshToken() {
 function spotifyLogout() {
     chrome.storage.local.remove(["access_token", "refresh_token"]);
     chrome.storage.local.set({"login_status": false});
+    clearInterval(tokenRefreshInterval);
 }
 
 /*--------------------------------------------------------------------------*/
