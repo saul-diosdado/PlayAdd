@@ -19,6 +19,7 @@ let addButtonElement = document.getElementById("add-button");
 /*--------------------------------------------------------------------------*/
 
 const DOMAIN_BACKEND = "https://playadd-for-spotify.herokuapp.com";
+const DOMAIN_COOKIE_STORE = "https://playadd-for-spotify.herokuapp.com";
 
 /**
  * Makes the entire track panel div clickable. Opens the currently playing song in Spotify.
@@ -76,7 +77,7 @@ function spotifyPlaylistAdd(playlistID, trackURI) {
             "/tracks?uris=" + encodeURIComponent(trackURI) +
             "&position=" + position;
 
-            chrome.cookies.get({"name": "access_token", "url": DOMAIN_BACKEND}, (cookie) => {
+            chrome.cookies.get({"name": "access_token", "url": DOMAIN_COOKIE_STORE}, (cookie) => {
         let xmlHTTP = new XMLHttpRequest();
         xmlHTTP.open("POST", addURL, true);
         xmlHTTP.setRequestHeader("Authorization", "Bearer " + cookie.value);
@@ -101,7 +102,7 @@ function spotifySearch(title) {
             "&type=" + type + 
             "&limit=" + limit;
     
-            chrome.cookies.get({"name": "access_token", "url": DOMAIN_BACKEND}, (cookie) => {
+            chrome.cookies.get({"name": "access_token", "url": DOMAIN_COOKIE_STORE}, (cookie) => {
         let xmlHTTP = new XMLHttpRequest();
         xmlHTTP.open("GET", searchURL, true);
         xmlHTTP.setRequestHeader("Authorization", "Bearer " + cookie.value);
@@ -157,7 +158,7 @@ function spotifyUpdateUI(coverURL, song, artist) {
 function spotifyGetUserURI(callbackGetPlaylists, callbackUpdateUI) {
     const userEndpoint = "https://api.spotify.com/v1/me";
     
-    chrome.cookies.get({"name": "access_token", "url": DOMAIN_BACKEND}, (cookie) => {
+    chrome.cookies.get({"name": "access_token", "url": DOMAIN_COOKIE_STORE}, (cookie) => {
         let xmlHTTP = new XMLHttpRequest();
         xmlHTTP.open("GET", userEndpoint, true);
         xmlHTTP.setRequestHeader("Authorization", "Bearer " + cookie.value);
@@ -185,7 +186,7 @@ function spotifyGetUserPlaylists(userURI, callbackUpdateUI) {
     // Build the request URI.
     const playlistsQuery = playlistsEndpoint;
     
-    chrome.cookies.get({"name": "access_token", "url": DOMAIN_BACKEND}, (cookie) => {
+    chrome.cookies.get({"name": "access_token", "url": DOMAIN_COOKIE_STORE}, (cookie) => {
         let xmlHTTP = new XMLHttpRequest();
         xmlHTTP.open("GET", playlistsQuery, true);
         xmlHTTP.setRequestHeader("Authorization", "Bearer " + cookie.value);

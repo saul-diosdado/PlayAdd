@@ -11,6 +11,7 @@
 const regexYTVideoURL = new RegExp("https:\/\/www\.youtube\.com\/watch\?\S*");
 
 const DOMAIN_BACKEND = "https://playadd-for-spotify.herokuapp.com";
+const DOMAIN_COOKIE_STORE = "https://playadd-for-spotify.herokuapp.com";
 const DOMAIN_EXTENSION = "chrome-extension://" + chrome.runtime.id;
 
 // The time between refreshing the access token (45 minutes).
@@ -98,8 +99,8 @@ function spotifyLoginAuthorization() {
         let queryParameters = queryURLToJSON(redirectURI);
 
         // Store the tokens into storage.
-        chrome.cookies.set({"httpOnly": true, "name": "access_token", "url": DOMAIN_BACKEND, "value": queryParameters.access_token});
-        chrome.cookies.set({"httpOnly": true, "name": "refresh_token", "url": DOMAIN_BACKEND, "value": queryParameters.refresh_token});
+        chrome.cookies.set({"httpOnly": true, "name": "access_token", "url": DOMAIN_COOKIE_STORE, "value": queryParameters.access_token});
+        chrome.cookies.set({"httpOnly": true, "name": "refresh_token", "url": DOMAIN_COOKIE_STORE, "value": queryParameters.refresh_token});
         chrome.storage.local.set({"login_status": true});
 
         // Set an interval to refresh the access token periodically.
@@ -114,7 +115,7 @@ function spotifyLoginAuthorization() {
  * Refresh the access token using the refresh token.
  */
 function spotifyRefreshToken() {
-    chrome.cookies.get({"name": "refresh_token", "url": DOMAIN_BACKEND}, (cookie) => {
+    chrome.cookies.get({"name": "refresh_token", "url": DOMAIN_COOKIE_STORE}, (cookie) => {
         // Query parameters for making a request to the backend server.
         const refreshEndpoint = DOMAIN_BACKEND + "/api/spotify/refresh/";
         const refreshToken = cookie.value;
@@ -131,10 +132,10 @@ function spotifyRefreshToken() {
                 let response = JSON.parse(xmlHTTP.responseText);
 
                 // Store the tokens into storage.
-                chrome.cookies.set({"httpOnly": true, "name": "access_token", "url": DOMAIN_BACKEND, "value": response.access_token});
+                chrome.cookies.set({"httpOnly": true, "name": "access_token", "url": DOMAIN_COOKIE_STORE, "value": response.access_token});
                 // Sometimes we will also get a new refresh token from Spotify. If so, store the new refresh token.
                 if (response.hasOwnProperty("refresh_token")) {
-                    chrome.cookies.set({"httpOnly": true, "name": "refresh_token", "url": DOMAIN_BACKEND, "value": response.refresh_token});
+                    chrome.cookies.set({"httpOnly": true, "name": "refresh_token", "url": DOMAIN_COOKIE_STORE, "value": response.refresh_token});
                 }
             }
         }
