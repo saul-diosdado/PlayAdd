@@ -14,6 +14,12 @@ let trackPanelElement = document.getElementById("track-panel");
 let userPlaylistsElement = document.getElementById("playlists-dropdown");
 let addButtonElement = document.getElementById("add-button");
 
+/*--------------------------------------------------------------------------*/
+/* CONSTANTS/GLOBAL VARIABLES */
+/*--------------------------------------------------------------------------*/
+
+const DOMAIN_BACKEND = "https://playadd-for-spotify.herokuapp.com";
+
 /**
  * Makes the entire track panel div clickable. Opens the currently playing song in Spotify.
  */
@@ -70,10 +76,10 @@ function spotifyPlaylistAdd(playlistID, trackURI) {
             "/tracks?uris=" + encodeURIComponent(trackURI) +
             "&position=" + position;
 
-    chrome.storage.local.get("access_token", (item) => {
+            chrome.cookies.get({"name": "access_token", "url": DOMAIN_BACKEND}, (cookie) => {
         let xmlHTTP = new XMLHttpRequest();
         xmlHTTP.open("POST", addURL, true);
-        xmlHTTP.setRequestHeader("Authorization", "Bearer " + item.access_token);
+        xmlHTTP.setRequestHeader("Authorization", "Bearer " + cookie.value);
         xmlHTTP.onreadystatechange = () => {
             if (xmlHTTP.readyState === 4 && xmlHTTP.status === 201) {
                 alert("Added to playlist!");
@@ -95,10 +101,10 @@ function spotifySearch(title) {
             "&type=" + type + 
             "&limit=" + limit;
     
-    chrome.storage.local.get("access_token", (item) => {
+            chrome.cookies.get({"name": "access_token", "url": DOMAIN_BACKEND}, (cookie) => {
         let xmlHTTP = new XMLHttpRequest();
         xmlHTTP.open("GET", searchURL, true);
-        xmlHTTP.setRequestHeader("Authorization", "Bearer " + item.access_token);
+        xmlHTTP.setRequestHeader("Authorization", "Bearer " + cookie.value);
         xmlHTTP.onreadystatechange = () => {
             if (xmlHTTP.readyState === 4 && xmlHTTP.status === 200) {
                 if (JSON.parse(xmlHTTP.responseText).tracks.items.length === 0) {
@@ -151,10 +157,10 @@ function spotifyUpdateUI(coverURL, song, artist) {
 function spotifyGetUserURI(callbackGetPlaylists, callbackUpdateUI) {
     const userEndpoint = "https://api.spotify.com/v1/me";
     
-    chrome.storage.local.get("access_token", (item) => {
+    chrome.cookies.get({"name": "access_token", "url": DOMAIN_BACKEND}, (cookie) => {
         let xmlHTTP = new XMLHttpRequest();
         xmlHTTP.open("GET", userEndpoint, true);
-        xmlHTTP.setRequestHeader("Authorization", "Bearer " + item.access_token);
+        xmlHTTP.setRequestHeader("Authorization", "Bearer " + cookie.value);
         xmlHTTP.onreadystatechange = () => {
             if (xmlHTTP.readyState === 4 && xmlHTTP.status === 200) {
                 let userURI = JSON.parse(xmlHTTP.response).uri;
@@ -179,10 +185,10 @@ function spotifyGetUserPlaylists(userURI, callbackUpdateUI) {
     // Build the request URI.
     const playlistsQuery = playlistsEndpoint;
     
-    chrome.storage.local.get("access_token", (item) => {
+    chrome.cookies.get({"name": "access_token", "url": DOMAIN_BACKEND}, (cookie) => {
         let xmlHTTP = new XMLHttpRequest();
         xmlHTTP.open("GET", playlistsQuery, true);
-        xmlHTTP.setRequestHeader("Authorization", "Bearer " + item.access_token);
+        xmlHTTP.setRequestHeader("Authorization", "Bearer " + cookie.value);
         xmlHTTP.onreadystatechange = () => {
             if (xmlHTTP.readyState === 4 && xmlHTTP.status === 200) {
                 // An array of all playlists the user has (including ones they only follow).

@@ -2,7 +2,9 @@
     "name": "PlayAdd for Spotify",
     "version": "1.0.0",
     "description": "Add YouTube songs to Spotify playlists.",
-    "permissions": ["tabs", "activeTab", "storage", "webNavigation", "identity", "https://www.youtube.com/*", "http://localhost:3000/*", "https://playadd-for-spotify.herokuapp.com/*"],
+    "permissions": [
+        "tabs", "activeTab", "storage", "webNavigation", "identity", "cookies",
+        "https://www.youtube.com/*", "http://localhost:3000/*", "https://playadd-for-spotify.herokuapp.com/*"],
     "background": {
         "scripts": ["background.js"],
         "persistent": false

@@ -13,6 +13,11 @@ const spotifyButtonElement = document.getElementById("spotify-button");
 
 const extensionVersionElement = document.getElementById("extension-version-text");
 
+/*--------------------------------------------------------------------------*/
+/* CONSTANTS/GLOBAL VARIABLES */
+/*--------------------------------------------------------------------------*/
+const DOMAIN_BACKEND = "https://playadd-for-spotify.herokuapp.com";
+
 /**
  * Tell the background.js script to start the login process or to logout the user, depending
  * on the current login status of the user.
@@ -89,10 +94,10 @@ function setUIUserIsLoggedOut() {
 function spotifyGetEmail(callback) {
     const profileEndpoint = "https://api.spotify.com/v1/me";
 
-    chrome.storage.local.get("access_token", (item) => {
+    chrome.cookies.get({"name": "access_token", "url": DOMAIN_BACKEND}, (cookie) => {
         let xmlHTTP = new XMLHttpRequest();
         xmlHTTP.open("GET", profileEndpoint, true);
-        xmlHTTP.setRequestHeader("Authorization", "Bearer " + item.access_token);
+        xmlHTTP.setRequestHeader("Authorization", "Bearer " + cookie.value);
         xmlHTTP.onreadystatechange = () => {
             if (xmlHTTP.readyState === 4 && xmlHTTP.status === 200) {
                 let userObject = JSON.parse(xmlHTTP.response);
