@@ -14,10 +14,8 @@ const DOMAIN_BACKEND = "https://playadd-for-spotify.herokuapp.com";
 const DOMAIN_COOKIE_STORE = "https://playadd-for-spotify.herokuapp.com";
 const DOMAIN_EXTENSION = "chrome-extension://" + chrome.runtime.id;
 
-// The time between refreshing the access token (45 minutes).
-const TOKEN_REFRESH_TIME = 2700000;
-// Holds the interval object.
-let tokenRefreshInterval = null;
+// The time between refreshing the access token in minutes.
+const TOKEN_REFRESH_TIME = 45;
 
 /*--------------------------------------------------------------------------*/
 /* CHROME API LISTENERS */
@@ -28,12 +26,21 @@ let tokenRefreshInterval = null;
  * Note that this only happens when the background script is first ran like when a
  * new Google Chrome window is opened.
  */
-chrome.storage.local.get("login_status", (item) => {
-    if (item.login_status) {
-        // Go ahead and refresh the token immediately.
+chrome.windows.onCreated.addListener(() => {
+    chrome.storage.local.get("login_status", (item) => {
+        if (item.login_status) {
+            chrome.alarms.create("refresh_alarm", {periodInMinutes: TOKEN_REFRESH_TIME});
+        }
+    });
+});
+
+/**
+ * Event that fires when an alarm fires.
+ */
+chrome.alarms.onAlarm.addListener((alarm) => {
+    // When the refresh alarm rings, refresh the access token.
+    if (alarm.name == "refresh_alarm") {
         spotifyRefreshToken();
-        // Interval to now periodically refresh the token.
-        tokenRefreshInterval = setInterval(spotifyRefreshToken, TOKEN_REFRESH_TIME);
     }
 });
 
@@ -103,8 +110,8 @@ function spotifyLoginAuthorization() {
         chrome.cookies.set({"httpOnly": true, "name": "refresh_token", "url": DOMAIN_COOKIE_STORE, "value": queryParameters.refresh_token});
         chrome.storage.local.set({"login_status": true});
 
-        // Set an interval to refresh the access token periodically.
-        tokenRefreshInterval = setInterval(spotifyRefreshToken, TOKEN_REFRESH_TIME);
+        // Set an alarm to refresh the access token periodically.
+        chrome.alarms.create("refresh_alarm", {periodInMinutes: TOKEN_REFRESH_TIME});
 
         // Open the redirect page to show the user that they have successfully connected their Spotify account.
         window.open(DOMAIN_EXTENSION + "/redirect.html");
@@ -150,7 +157,7 @@ function spotifyLogout() {
     chrome.cookies.remove({"name": "access_token", "url": DOMAIN_BACKEND});
     chrome.cookies.remove({"name": "refresh_token", "url": DOMAIN_BACKEND});
     chrome.storage.local.set({"login_status": false});
-    clearInterval(tokenRefreshInterval);
+    chrome.alarms.clear("refresh_alarm");
 }
 
 /*--------------------------------------------------------------------------*/
