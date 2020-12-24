@@ -77,7 +77,7 @@ function spotifyPlaylistAdd(playlistID, trackURI) {
             "/tracks?uris=" + encodeURIComponent(trackURI) +
             "&position=" + position;
 
-            chrome.cookies.get({"name": "access_token", "url": DOMAIN_COOKIE_STORE}, (cookie) => {
+    chrome.cookies.get({"name": "access_token", "url": DOMAIN_COOKIE_STORE}, (cookie) => {
         let xmlHTTP = new XMLHttpRequest();
         xmlHTTP.open("POST", addURL, true);
         xmlHTTP.setRequestHeader("Authorization", "Bearer " + cookie.value);
@@ -102,7 +102,7 @@ function spotifySearch(title) {
             "&type=" + type + 
             "&limit=" + limit;
     
-            chrome.cookies.get({"name": "access_token", "url": DOMAIN_COOKIE_STORE}, (cookie) => {
+    chrome.cookies.get({"name": "access_token", "url": DOMAIN_COOKIE_STORE}, (cookie) => {
         let xmlHTTP = new XMLHttpRequest();
         xmlHTTP.open("GET", searchURL, true);
         xmlHTTP.setRequestHeader("Authorization", "Bearer " + cookie.value);
