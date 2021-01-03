@@ -15,7 +15,7 @@ const DOMAIN_COOKIE_STORE = "https://playadd-for-spotify.herokuapp.com";
 const DOMAIN_EXTENSION = "chrome-extension://" + chrome.runtime.id;
 
 // The time between refreshing the access token (45 minutes).
-const TOKEN_REFRESH_TIME = 2700000;
+const TOKEN_REFRESH_TIME = 45 * 60 * 1000;
 // Holds the interval object.
 let tokenRefreshInterval = null;
 
@@ -116,30 +116,35 @@ function spotifyLoginAuthorization() {
  */
 function spotifyRefreshToken() {
     chrome.cookies.get({"name": "refresh_token", "url": DOMAIN_COOKIE_STORE}, (cookie) => {
-        // Query parameters for making a request to the backend server.
-        const refreshEndpoint = DOMAIN_BACKEND + "/api/spotify/refresh/";
-        const refreshToken = cookie.value;
-
-        // Build the request URI.
-        const refreshQuery = refreshEndpoint + 
-                "?refresh_token=" + encodeURIComponent(refreshToken);
-
-        let xmlHTTP = new XMLHttpRequest();
-        xmlHTTP.open("GET", refreshQuery, true);
-        xmlHTTP.onreadystatechange = () => {
-            if (xmlHTTP.readyState == 4 && xmlHTTP.status == 200) {
-                // Upon receiving a response, store the new access token.
-                let response = JSON.parse(xmlHTTP.responseText);
-
-                // Store the tokens into storage.
-                chrome.cookies.set({"httpOnly": true, "name": "access_token", "url": DOMAIN_COOKIE_STORE, "value": response.access_token});
-                // Sometimes we will also get a new refresh token from Spotify. If so, store the new refresh token.
-                if (response.hasOwnProperty("refresh_token")) {
-                    chrome.cookies.set({"httpOnly": true, "name": "refresh_token", "url": DOMAIN_COOKIE_STORE, "value": response.refresh_token});
+        try {
+            // Query parameters for making a request to the backend server.
+            const refreshEndpoint = DOMAIN_BACKEND + "/api/spotify/refresh/";
+            const refreshToken = cookie.value;
+    
+            // Build the request URI.
+            const refreshQuery = refreshEndpoint + 
+                    "?refresh_token=" + encodeURIComponent(refreshToken);
+    
+            let xmlHTTP = new XMLHttpRequest();
+            xmlHTTP.open("GET", refreshQuery, true);
+            xmlHTTP.onreadystatechange = () => {
+                if (xmlHTTP.readyState == 4 && xmlHTTP.status == 200) {
+                    // Upon receiving a response, store the new access token.
+                    let response = JSON.parse(xmlHTTP.responseText);
+    
+                    // Store the tokens into storage.
+                    chrome.cookies.set({"httpOnly": true, "name": "access_token", "url": DOMAIN_COOKIE_STORE, "value": response.access_token});
+                    // Sometimes we will also get a new refresh token from Spotify. If so, store the new refresh token.
+                    if (response.hasOwnProperty("refresh_token")) {
+                        chrome.cookies.set({"httpOnly": true, "name": "refresh_token", "url": DOMAIN_COOKIE_STORE, "value": response.refresh_token});
+                    }
                 }
             }
+            xmlHTTP.send();
+        } catch (error) {
+            // More than likely an error occured because there is no active refresh token stored. In this case set the login status to false.
+            chrome.storage.local.set({"login_status": false});
         }
-        xmlHTTP.send();
     });
 }
 
