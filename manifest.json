@@ -6,7 +6,7 @@
         "cookies", "identity", "storage", "tabs",
         "https://www.youtube.com/*", "http://localhost:3000/*", "https://playadd-for-spotify.herokuapp.com/*"],
     "background": {
-        "scripts": ["background.js"],
+        "scripts": ["scripts/background.js"],
         "persistent": false
     },
     "browser_action": {},
