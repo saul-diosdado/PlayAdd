@@ -25,10 +25,10 @@ const DOMAIN_COOKIE_STORE = "https://playadd-for-spotify.herokuapp.com";
  * Makes the entire track panel div clickable. Opens the currently playing song in Spotify.
  */
 trackPanelElement.addEventListener("click", () => {
-    chrome.storage.local.get("spotify_track_url", (item) => {
+    chrome.storage.local.get("spotify_track", (item) => {
         // Only make the div a hyperlink to the song when a song was found in the Spotify search query.
-        if (item.spotify_track_url != null) {
-            window.open(item.spotify_track_url);
+        if (item.spotify_track != null) {
+            window.open(item.spotify_track.url);
         }
     });
 });
@@ -37,15 +37,12 @@ trackPanelElement.addEventListener("click", () => {
  * Add button adds the currently playing song to the selected playlist.
  */
 addButtonElement.addEventListener("click", () => {
-    chrome.storage.local.get("spotify_track_uri", (item) => {
-        if (item.spotify_track_uri != null) {
+    chrome.storage.local.get("spotify_track", (item) => {
+        if (item.spotify_track != null) {
             // A song was found by th Spotify search query.
             let selectedPlaylistID = userPlaylistsElement.value;
-            let currentlyPlayingTrackURI = item.spotify_track_uri;
+            let currentlyPlayingTrackURI = item.spotify_track.uri;
             spotifyPlaylistAdd(selectedPlaylistID, currentlyPlayingTrackURI)
-        } else {
-            // A soung was not found by the Spotify search query.
-            
         }
     });
 });
@@ -54,8 +51,18 @@ addButtonElement.addEventListener("click", () => {
  * Retrieve the YouTube video title from storage and parse it to make a Spotify Search API call.
  * Once done, get all of the user's playlists and update the UI.
  */
-chrome.storage.local.get("yt_video_title", (item) => {
-    spotifySearch(parseTitle(item.yt_video_title));
+chrome.storage.local.get(["yt_video_title", "previous_yt_title", "spotify_track"], (item) => {
+    // Check if we have already searched for this YouTube title.
+    if (item.previous_yt_title == item.yt_video_title) {
+        // If so, we can just change the UI with the track object that was stored in the original search.
+        spotifyUpdateUI(item.spotify_track);
+    } else {
+        spotifySearch(spotifyUpdateUI, parseTitle(item.yt_video_title));
+        // Since we already did a search for this title, store it.
+        chrome.storage.local.set({"previous_yt_title": item.yt_video_title});
+    }
+
+    // Always update the playlists drop-down menu.
     spotifyGetUserURI(spotifyGetUserPlaylists, spotifyUpdatePlaylistsUI);
 });
 
@@ -90,8 +97,12 @@ function spotifyPlaylistAdd(playlistID, trackURI) {
     });
 }
 
-// Call spotify API "search" endpoint which returns a list of tracks in JSON. 
-function spotifySearch(title) {
+/**
+ * Call the "Spotify Search" API to search for the song.
+ * @param {function} callbackUpdateUI Function that updates the UI of the popup with the response data.
+ * @param {string} title String to search for in the Spotify API.
+ */
+function spotifySearch(callbackUpdateUI, title) {
     const searchEndpoint = "https://api.spotify.com/v1/search";
     let q = encodeURIComponent(title);
     const type = "track";
@@ -109,26 +120,31 @@ function spotifySearch(title) {
         xmlHTTP.onreadystatechange = () => {
             if (xmlHTTP.readyState === 4 && xmlHTTP.status === 200) {
                 if (JSON.parse(xmlHTTP.responseText).tracks.items.length === 0) {
-                    console.log("Sorry, couldn't find this song on Spotify.");
-
-                    // Since no Spotify track was found, delete the Spotify data keys from storage.
-                    chrome.storage.local.remove(["spotify_track_url", "spotify_track_uri"]);
+                    alert("Sorry, couldn't find this song on Spotify.");
+                    chrome.storage.local.set({spotify_track: null});
                 } else {
                     // Gather information from response.
                     let trackObject = JSON.parse(xmlHTTP.responseText).tracks.items[0];
-                    let coverArtURL = trackObject.album.images[0].url;
-                    let trackName = trackObject.name;
+                    // There may be multiple artists, if so append them together separated by commas.
                     let artistNames = trackObject.artists[0].name;
                     for (let i = 1; i < trackObject.artists.length; i++) {
                         artistNames += ", " + trackObject.artists[i].name;
                     }
+
+                    // Gather important information from response into one object.
+                    let spotifyTrack = {
+                        name: trackObject.name,
+                        artist: artistNames,
+                        cover_url: trackObject.album.images[0].url,
+                        url: trackObject.external_urls.spotify,
+                        uri: trackObject.uri
+                    }
+
+                    // Store the object in chrome storage.
+                    chrome.storage.local.set({spotify_track: spotifyTrack});
     
                     // Use the gathered information to update the Popup UI.
-                    spotifyUpdateUI(coverArtURL, trackName, artistNames);
-    
-                    // Store the Spotify link to the track and the URI (unique identifier used to then add to a playlist).
-                    chrome.storage.local.set({"spotify_track_url": trackObject.external_urls.spotify});
-                    chrome.storage.local.set({"spotify_track_uri": trackObject.uri});
+                    callbackUpdateUI(spotifyTrack);
                 }
             }
         }
@@ -138,14 +154,14 @@ function spotifySearch(title) {
 
 /**
  * Updates the Popup UI with the data retrieved from the Spotify Search API call.
- * @param {string} coverURL The URL to the cover art image
- * @param {string} song The song name
- * @param {string} artist The artist name
+ * @param {object} spotifyTrack Object containing data of the song such as name, artists, and corresponding urls/uris.
  */
-function spotifyUpdateUI(coverURL, song, artist) {
-    coverArtElement.src = coverURL;
-    trackNameElement.innerText = song;
-    artistNameElement.innerText = artist;
+function spotifyUpdateUI(spotifyTrack) {
+    if (spotifyTrack != null) {
+        coverArtElement.src = spotifyTrack.cover_url;
+        trackNameElement.innerText = spotifyTrack.name;
+        artistNameElement.innerText = spotifyTrack.artist;
+    }
 }
 
 /**
