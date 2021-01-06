@@ -43,43 +43,40 @@ chrome.storage.local.get("login_status", (item) => {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         if (request.message == "login") {
             spotifyLoginAuthorization();
-        }else if (request.message == "logout") {
+        } else if (request.message == "logout") {
             spotifyLogout();
         }
     }
 );
 
 /**
- * Event listener when the Chrome extension is clicked in the navigation bar.
- */
-chrome.browserAction.onClicked.addListener(() => {
-    chrome.tabs.query({active: true, currentWindow: true}, (tab) => {
-        // Check if the user is logged in. If not, show the login popup.
-        chrome.storage.local.get("login_status", (item) => {
-            if (item.login_status) {
-                // Check if a YouTube video is being watched.
-                if (regexYTVideoURL.test(tab[0].url)) {
-                    chrome.browserAction.setPopup({popup: "popup.html"});
-                    chrome.storage.local.set({"yt_video_title": tab[0].title});
-                } else {
-                    chrome.browserAction.setPopup({popup: ""});
-                    chrome.browserAction.disable(tab[0].id);
-                    chrome.storage.local.remove(["yt_video_title"]);
-                }
-            } else {
-                chrome.browserAction.setPopup({popup: "login.html"});
-            }
-        });
-    });
-});
-
-/**
  * Event listener which fires upon any change to a tab.
  */
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    // When a new page is loaded, set the popup to none so that the browserAction.onClicked can now fire.
-    if (changeInfo.status == "complete") {
-        chrome.browserAction.setPopup({popup: ""});
+    // The changeInfo object holds the values that have changed in the tab object when the user navigates to a new page.
+    if (changeInfo.hasOwnProperty("url") && regexYTVideoURL.test(changeInfo.url)) {
+        // The user is watching a YouTube video.
+        chrome.storage.local.set({"is_watching_yt_video": true});
+    } else if (changeInfo.hasOwnProperty("url") && !regexYTVideoURL.test(changeInfo.url)) {
+        // The user is NOT watching a YouTube video.
+        chrome.storage.local.set({"is_watching_yt_video": false});
+        chrome.browserAction.setPopup({popup: "holder.html", tabId: tabId});
+    }
+
+    // The changeInfo object does not always have the "title" field, this avoids false negatives.
+    if (changeInfo.hasOwnProperty("title")) {
+        // If the user is watching a YouTube video, set the title and corresponding popups depending on login status.
+        chrome.storage.local.get(["is_watching_yt_video", "login_status"], (item) => {
+            if (item.is_watching_yt_video) {
+                chrome.storage.local.set({"yt_video_title": changeInfo.title});
+            }
+
+            if (item.login_status && item.is_watching_yt_video) {
+                chrome.browserAction.setPopup({popup: "popup.html", tabId: tabId});
+            } else if (!item.login_status) {
+                chrome.browserAction.setPopup({popup: "login.html", tabId: tabId});
+            }
+        })
     }
 });
 
