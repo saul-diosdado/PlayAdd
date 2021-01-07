@@ -130,8 +130,9 @@ function spotifyLoginAuthorization() {
         let queryParameters = queryURLToJSON(redirectURI);
 
         // Store the tokens into storage.
-        chrome.cookies.set({httpOnly: true, name: "accessToken", url: DOMAIN_COOKIE_STORE, value: queryParameters.access_token});
-        chrome.cookies.set({httpOnly: true, name: "refreshToken", url: DOMAIN_COOKIE_STORE, value: queryParameters.refresh_token});
+        let expirationSeconds = getExpirationDateInSeconds();
+        chrome.cookies.set({expirationDate: expirationSeconds, httpOnly: true, name: "accessToken", url: DOMAIN_COOKIE_STORE, value: queryParameters.access_token});
+        chrome.cookies.set({expirationDate: expirationSeconds, httpOnly: true, name: "refreshToken", url: DOMAIN_COOKIE_STORE, value: queryParameters.refresh_token});
         chrome.storage.local.set({"isLoggedIn": true});
 
         // Set an interval to refresh the access token periodically.
@@ -146,7 +147,6 @@ function spotifyLoginAuthorization() {
  * Refresh the access token using the refresh token.
  */
 function spotifyRefreshToken() {
-    console.log("KJSD");
     chrome.cookies.get({name: "refreshToken", url: DOMAIN_COOKIE_STORE}, (cookie) => {
         try {
             // Query parameters for making a request to the backend server.
@@ -158,25 +158,23 @@ function spotifyRefreshToken() {
                     "?refresh_token=" + encodeURIComponent(refreshToken);
     
             let xmlHTTP = new XMLHttpRequest();
-            console.log("EHSFS");
             xmlHTTP.open("GET", refreshQuery, true);
             xmlHTTP.onreadystatechange = () => {
                 if (xmlHTTP.readyState == 4 && xmlHTTP.status == 200) {
                     // Upon receiving a response, store the new access token.
                     let response = JSON.parse(xmlHTTP.responseText);
-                    console.log(response);
     
+                    let expirationSeconds = getExpirationDateInSeconds();
                     // Store the tokens into storage.
-                    chrome.cookies.set({httpOnly: true, name: "accessToken", url: DOMAIN_COOKIE_STORE, value: response.access_token});
+                    chrome.cookies.set({expirationDate: expirationSeconds, httpOnly: true, name: "accessToken", url: DOMAIN_COOKIE_STORE, value: response.access_token});
                     // Sometimes we will also get a new refresh token from Spotify. If so, store the new refresh token.
                     if (response.hasOwnProperty("refreshToken")) {
-                        chrome.cookies.set({httpOnly: true, name: "refreshToken", url: DOMAIN_COOKIE_STORE, value: response.refresh_token});
+                        chrome.cookies.set({expirationDate: expirationSeconds, httpOnly: true, name: "refreshToken", url: DOMAIN_COOKIE_STORE, value: response.refresh_token});
                     }
                 }
             }
             xmlHTTP.send();
         } catch (error) {
-            console.log(error);
             // More than likely an error occured because there is no active refresh token stored. In this case set the login status to false.
             chrome.storage.local.set({"isLoggedIn": false});
         }
@@ -200,4 +198,12 @@ function spotifyLogout() {
 // Takes as parameter a URL and returns a JSON of the extracted query parameters.
 function queryURLToJSON(string) {
     return JSON.parse('{"' + decodeURI(string.split('?')[1].replace(/&/g, "\",\"").replace(/=/g,"\":\"")) + '"}');
+}
+
+// Returns the seconds since the UNIX epoch 10 years from now.
+function getExpirationDateInSeconds() {
+    let date = new Date();
+    let secondsSinceEpoch = date.getTime() / 1000;
+    let tenYearsInSeconds = 315360000;
+    return secondsSinceEpoch + tenYearsInSeconds;
 }
