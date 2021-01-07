@@ -25,10 +25,10 @@ const DOMAIN_COOKIE_STORE = "https://playadd-for-spotify.herokuapp.com";
  * Makes the entire track panel div clickable. Opens the currently playing song in Spotify.
  */
 trackPanelElement.addEventListener("click", () => {
-    chrome.storage.local.get("spotify_track", (item) => {
+    chrome.storage.local.get("spotifyTrack", (item) => {
         // Only make the div a hyperlink to the song when a song was found in the Spotify search query.
-        if (item.spotify_track != null) {
-            window.open(item.spotify_track.url);
+        if (item.spotifyTrack != null) {
+            window.open(item.spotifyTrack.url);
         }
     });
 });
@@ -37,11 +37,11 @@ trackPanelElement.addEventListener("click", () => {
  * Add button adds the currently playing song to the selected playlist.
  */
 addButtonElement.addEventListener("click", () => {
-    chrome.storage.local.get("spotify_track", (item) => {
-        if (item.spotify_track != null) {
+    chrome.storage.local.get("spotifyTrack", (item) => {
+        if (item.spotifyTrack != null) {
             // A song was found by th Spotify search query.
             let selectedPlaylistID = userPlaylistsElement.value;
-            let currentlyPlayingTrackURI = item.spotify_track.uri;
+            let currentlyPlayingTrackURI = item.spotifyTrack.uri;
             spotifyPlaylistAdd(selectedPlaylistID, currentlyPlayingTrackURI)
         }
     });
@@ -51,15 +51,15 @@ addButtonElement.addEventListener("click", () => {
  * Retrieve the YouTube video title from storage and parse it to make a Spotify Search API call.
  * Once done, get all of the user's playlists and update the UI.
  */
-chrome.storage.local.get(["yt_video_title", "previous_yt_title", "spotify_track"], (item) => {
+chrome.storage.local.get(["ytVideoTitle", "previousYTTitle", "spotifyTrack"], (item) => {
     // Check if we have already searched for this YouTube title.
-    if (item.previous_yt_title == item.yt_video_title) {
+    if (item.previousYTTitle == item.ytVideoTitle) {
         // If so, we can just change the UI with the track object that was stored in the original search.
-        spotifyUpdateUI(item.spotify_track);
+        spotifyUpdateUI(item.spotifyTrack);
     } else {
-        spotifySearch(spotifyUpdateUI, parseTitle(item.yt_video_title));
+        spotifySearch(spotifyUpdateUI, parseTitle(item.ytVideoTitle));
         // Since we already did a search for this title, store it.
-        chrome.storage.local.set({"previous_yt_title": item.yt_video_title});
+        chrome.storage.local.set({"previousYTTitle": item.ytVideoTitle});
     }
 
     // Always update the playlists drop-down menu.
@@ -84,7 +84,7 @@ function spotifyPlaylistAdd(playlistID, trackURI) {
             "/tracks?uris=" + encodeURIComponent(trackURI) +
             "&position=" + position;
 
-    chrome.cookies.get({"name": "access_token", "url": DOMAIN_COOKIE_STORE}, (cookie) => {
+    chrome.cookies.get({"name": "accessToken", "url": DOMAIN_COOKIE_STORE}, (cookie) => {
         let xmlHTTP = new XMLHttpRequest();
         xmlHTTP.open("POST", addURL, true);
         xmlHTTP.setRequestHeader("Authorization", "Bearer " + cookie.value);
@@ -113,7 +113,7 @@ function spotifySearch(callbackUpdateUI, title) {
             "&type=" + type + 
             "&limit=" + limit;
     
-    chrome.cookies.get({"name": "access_token", "url": DOMAIN_COOKIE_STORE}, (cookie) => {
+    chrome.cookies.get({"name": "accessToken", "url": DOMAIN_COOKIE_STORE}, (cookie) => {
         let xmlHTTP = new XMLHttpRequest();
         xmlHTTP.open("GET", searchURL, true);
         xmlHTTP.setRequestHeader("Authorization", "Bearer " + cookie.value);
@@ -121,7 +121,7 @@ function spotifySearch(callbackUpdateUI, title) {
             if (xmlHTTP.readyState === 4 && xmlHTTP.status === 200) {
                 if (JSON.parse(xmlHTTP.responseText).tracks.items.length === 0) {
                     alert("Sorry, couldn't find this song on Spotify.");
-                    chrome.storage.local.set({spotify_track: null});
+                    chrome.storage.local.set({spotifyTrack: null});
                 } else {
                     // Gather information from response.
                     let trackObject = JSON.parse(xmlHTTP.responseText).tracks.items[0];
@@ -135,13 +135,13 @@ function spotifySearch(callbackUpdateUI, title) {
                     let spotifyTrack = {
                         name: trackObject.name,
                         artist: artistNames,
-                        cover_url: trackObject.album.images[0].url,
+                        coverURL: trackObject.album.images[0].url,
                         url: trackObject.external_urls.spotify,
                         uri: trackObject.uri
                     }
 
                     // Store the object in chrome storage.
-                    chrome.storage.local.set({spotify_track: spotifyTrack});
+                    chrome.storage.local.set({spotifyTrack: spotifyTrack});
     
                     // Use the gathered information to update the Popup UI.
                     callbackUpdateUI(spotifyTrack);
@@ -158,7 +158,7 @@ function spotifySearch(callbackUpdateUI, title) {
  */
 function spotifyUpdateUI(spotifyTrack) {
     if (spotifyTrack != null) {
-        coverArtElement.src = spotifyTrack.cover_url;
+        coverArtElement.src = spotifyTrack.coverURL;
         trackNameElement.innerText = spotifyTrack.name;
         artistNameElement.innerText = spotifyTrack.artist;
     }
@@ -174,7 +174,7 @@ function spotifyUpdateUI(spotifyTrack) {
 function spotifyGetUserURI(callbackGetPlaylists, callbackUpdateUI) {
     const userEndpoint = "https://api.spotify.com/v1/me";
     
-    chrome.cookies.get({"name": "access_token", "url": DOMAIN_COOKIE_STORE}, (cookie) => {
+    chrome.cookies.get({"name": "accessToken", "url": DOMAIN_COOKIE_STORE}, (cookie) => {
         let xmlHTTP = new XMLHttpRequest();
         xmlHTTP.open("GET", userEndpoint, true);
         xmlHTTP.setRequestHeader("Authorization", "Bearer " + cookie.value);
@@ -202,7 +202,7 @@ function spotifyGetUserPlaylists(userURI, callbackUpdateUI) {
     // Build the request URI.
     const playlistsQuery = playlistsEndpoint;
     
-    chrome.cookies.get({"name": "access_token", "url": DOMAIN_COOKIE_STORE}, (cookie) => {
+    chrome.cookies.get({"name": "accessToken", "url": DOMAIN_COOKIE_STORE}, (cookie) => {
         let xmlHTTP = new XMLHttpRequest();
         xmlHTTP.open("GET", playlistsQuery, true);
         xmlHTTP.setRequestHeader("Authorization", "Bearer " + cookie.value);
