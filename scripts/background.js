@@ -19,12 +19,9 @@ const TOKEN_REFRESH_TIME = 45 * 60 * 1000;
 // Holds the interval object.
 let tokenRefreshInterval = null;
 
-/*--------------------------------------------------------------------------*/
-/* CHROME API LISTENERS */
-/*--------------------------------------------------------------------------*/
-
 /**
- * Check if the user is logged in. If so, go ahead and refresh the access token.
+ * Check if the user is logged in. If so, go ahead and refresh the access token and
+ * set the correct popup depending on the login status.
  * Note that this only happens when the background script is first ran like when a
  * new Google Chrome window is opened.
  */
@@ -34,8 +31,17 @@ chrome.storage.local.get("isLoggedIn", (item) => {
         spotifyRefreshToken();
         // Interval to now periodically refresh the token.
         tokenRefreshInterval = setInterval(spotifyRefreshToken, TOKEN_REFRESH_TIME);
+        // Set the correct popup for each tab since the user is logged in.
+        chromeSetLoggedInPopups();
+    } else {
+        // Set a login popup for each tab.
+        chromeSetLoggedOutPopups();
     }
 });
+
+/*--------------------------------------------------------------------------*/
+/* CHROME API LISTENERS */
+/*--------------------------------------------------------------------------*/
 
 /**
  * Listens to messages from other scripts.
@@ -58,25 +64,9 @@ chrome.storage.onChanged.addListener((changes) => {
         if (key === "isLoggedIn") {
             // User logged in.
             if (changes.isLoggedIn.newValue) {
-                // Get all of the tabs.
-                chrome.tabs.query({}, (tabs) => {
-                    for (tab in tabs) {
-                        if (regexYTVideoURL.test(tab.url)) {
-                            chrome.browserAction.setPopup({popup: "popup.html", tabId: tab.id});
-                            chrome.storage.local.set({"isWatchingYTVideo": true});
-                            chrome.storage.local.set({"ytVideoTitle": tab.title});
-                        } else {
-                            chrome.browserAction.setPopup({popup: "holder.html", tabId: tab.id});
-                        }
-                    }
-                });
+                chromeSetLoggedInPopups();
             } else {
-                // Get all of the tabs.
-                chrome.tabs.query({}, (tabs) => {
-                    for (tab in tabs) {
-                        chrome.browserAction.setPopup({popup: "login.html", tabId: tab.id});
-                    }
-                });
+                chromeSetLoggedOutPopups();
             }
         }
     }
@@ -113,6 +103,38 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         })
     }
 });
+
+/*--------------------------------------------------------------------------*/
+/* CHROME API HELPER FUNCTIONS */
+/*--------------------------------------------------------------------------*/
+
+/**
+ * Iterate through each tab and set the correct popup depending on the URL of the tab.
+ */
+function chromeSetLoggedInPopups() {
+    chrome.tabs.query({}, (tabs) => {
+        for (tab of tabs) {
+            if (regexYTVideoURL.test(tab.url)) {
+                chrome.browserAction.setPopup({popup: "popup.html", tabId: tab.id});
+                chrome.storage.local.set({"isWatchingYTVideo": true});
+                chrome.storage.local.set({"ytVideoTitle": tab.title});
+            } else {
+                chrome.browserAction.setPopup({popup: "holder.html", tabId: tab.id});
+            }
+        }
+    });
+}
+
+/**
+ * Iterate through each open tab and set the popup to the login popup.
+ */
+function chromeSetLoggedOutPopups() {
+    chrome.tabs.query({}, (tabs) => {
+        for (tab of tabs) {
+            chrome.browserAction.setPopup({popup: "login.html", tabId: tab.id});
+        }
+    });
+}
 
 /*--------------------------------------------------------------------------*/
 /* SPOTIFY FUNCTIONS */
