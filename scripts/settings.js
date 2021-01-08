@@ -26,9 +26,9 @@ const DOMAIN_COOKIE_STORE = "https://playadd-for-spotify.herokuapp.com";
  */
 spotifyButtonElement.addEventListener("click", () => {
     // Get the current login status of the user from chrome.storage.
-    chrome.storage.local.get("login_status", (item) => {
+    chrome.storage.local.get("isLoggedIn", (item) => {
         // This button logs the user out if they are logged in, and vice versa.
-        if (item.login_status) {
+        if (item.isLoggedIn) {
             chrome.runtime.sendMessage({message: "logout"});
         } else {
             chrome.runtime.sendMessage({message: "login"});
@@ -40,8 +40,8 @@ spotifyButtonElement.addEventListener("click", () => {
 /**
  * When this script is first ran, set the UI based on the login status of the user.
  */
-chrome.storage.local.get("login_status", (item) => {
-    if (item.login_status) {
+chrome.storage.local.get("isLoggedIn", (item) => {
+    if (item.isLoggedIn) {
         setUIUserIsLoggedIn();
     } else {
         setUIUserIsLoggedOut();
@@ -56,9 +56,9 @@ extensionVersionElement.innerText = chrome.runtime.getManifest().version;
  */
 chrome.storage.onChanged.addListener((changes, namespace) => {
     for (key in changes) {
-        if (key === "login_status") {
+        if (key === "isLoggedIn") {
             // If the user is now logged in.
-            if (changes.login_status.newValue) {
+            if (changes.isLoggedIn.newValue) {
                 setUIUserIsLoggedIn();
             } else {
                 setUIUserIsLoggedOut();
@@ -96,7 +96,7 @@ function setUIUserIsLoggedOut() {
 function spotifyGetEmail(callback) {
     const profileEndpoint = "https://api.spotify.com/v1/me";
 
-    chrome.cookies.get({"name": "access_token", "url": DOMAIN_COOKIE_STORE}, (cookie) => {
+    chrome.cookies.get({"name": "accessToken", "url": DOMAIN_COOKIE_STORE}, (cookie) => {
         let xmlHTTP = new XMLHttpRequest();
         xmlHTTP.open("GET", profileEndpoint, true);
         xmlHTTP.setRequestHeader("Authorization", "Bearer " + cookie.value);
