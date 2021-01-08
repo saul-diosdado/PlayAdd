@@ -48,6 +48,7 @@ app.get("/api/spotify/login/", (req, res) => {
     let authEndpoint = "https://accounts.spotify.com/authorize";
     let responseType = "code";
     let scope = "playlist-modify-public playlist-modify-private playlist-read-private user-read-email";
+    let showDialog = "true";
 
     // Full authorization URL with parameters.
     let authorizeURL = authEndpoint + 
@@ -55,6 +56,7 @@ app.get("/api/spotify/login/", (req, res) => {
             "&response_type=" + responseType + 
             "&redirect_uri=" + encodeURIComponent(SPOTIFY_REDIRECT_URI) +
             "&scope=" + encodeURIComponent(scope);
+            "&show_dialog=" + showDialog;
 
     // Redirects the user to grant our application permission.
     res.redirect(authorizeURL);
