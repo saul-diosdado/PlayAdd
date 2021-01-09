@@ -48,10 +48,12 @@ chrome.storage.local.get("isLoggedIn", (item) => {
  */
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         if (request.message == "login") {
-            spotifyLoginAuthorization();
+            spotifyLogin(sendResponse);
         } else if (request.message == "logout") {
             spotifyLogout();
         }
+
+        return true;
     }
 );
 
@@ -142,26 +144,35 @@ function chromeSetLoggedOutPopups() {
 
 /**
  * Launch the "Authorization Code Flow", handle the response with the callback function.
+ * @param {function} sendResponse Sends the script that started the login a response.
  */
-function spotifyLoginAuthorization() {
+function spotifyLogin(sendResponse) {
     chrome.identity.launchWebAuthFlow({
         url: DOMAIN_BACKEND + "/api/spotify/login/",
         interactive: true
     }, (redirectURI) => {
-        // Parse the URL query parameters into a JSON.
-        let queryParameters = queryURLToJSON(redirectURI);
-
-        // Store the tokens into storage.
-        let expirationSeconds = getExpirationDateInSeconds();
-        chrome.cookies.set({expirationDate: expirationSeconds, httpOnly: true, name: "accessToken", url: DOMAIN_COOKIE_STORE, value: queryParameters.access_token});
-        chrome.cookies.set({expirationDate: expirationSeconds, httpOnly: true, name: "refreshToken", url: DOMAIN_COOKIE_STORE, value: queryParameters.refresh_token});
-        chrome.storage.local.set({"isLoggedIn": true});
-
-        // Set an interval to refresh the access token periodically.
-        tokenRefreshInterval = setInterval(spotifyRefreshToken, TOKEN_REFRESH_TIME);
-
-        // Open the redirect page to show the user that they have successfully connected their Spotify account.
-        window.open(DOMAIN_EXTENSION + "/redirect.html");
+        if (chrome.runtime.lastError) {
+            // Something went wrong, more than likely the user cancelled the login.
+            sendResponse({success: false});
+        } else {
+            // Parse the URL query parameters into a JSON.
+            let queryParameters = queryURLToJSON(redirectURI);
+    
+            // Store the tokens into storage.
+            let expirationSeconds = getExpirationDateInSeconds();
+            chrome.cookies.set({expirationDate: expirationSeconds, httpOnly: true, name: "accessToken", url: DOMAIN_COOKIE_STORE, value: queryParameters.access_token});
+            chrome.cookies.set({expirationDate: expirationSeconds, httpOnly: true, name: "refreshToken", url: DOMAIN_COOKIE_STORE, value: queryParameters.refresh_token});
+            chrome.storage.local.set({"isLoggedIn": true});
+    
+            // Set an interval to refresh the access token periodically.
+            tokenRefreshInterval = setInterval(spotifyRefreshToken, TOKEN_REFRESH_TIME);
+    
+            // Open the redirect page to show the user that they have successfully connected their Spotify account.
+            window.open(DOMAIN_EXTENSION + "/redirect.html");
+    
+            // Send the original script that started the login a response.
+            sendResponse({success: true});
+        }
     });
 }
 
@@ -197,8 +208,8 @@ function spotifyRefreshToken() {
             }
             xmlHTTP.send();
         } catch (error) {
-            // More than likely an error occured because there is no active refresh token stored. In this case set the login status to false.
-            chrome.storage.local.set({"isLoggedIn": false});
+            // Most likely the extension failed to get the refersh token cookie. We logout the user in order to in a sense reset the extension.
+            spotifyLogout();
         }
     });
 }
@@ -210,6 +221,7 @@ function spotifyLogout() {
     chrome.cookies.remove({name: "accessToken", url: DOMAIN_BACKEND});
     chrome.cookies.remove({name: "refreshToken", url: DOMAIN_BACKEND});
     chrome.storage.local.set({"isLoggedIn": false});
+    chrome.identity.clearAllCachedAuthTokens(() => {});
     clearInterval(tokenRefreshInterval);
 }
 
