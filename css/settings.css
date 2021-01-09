@@ -1,90 +1,90 @@
 body {
-    height: 100%;
-    width: auto;
-    margin: 20px;
-    
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  height: 100%;
+  width: auto;
+  margin: 20px;
 
-    background-color: #191414;
-    border-color: #191414;
-    color: white;
-    font-family: Circular, Helvetica, Arial, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color: #191414;
+  border-color: #191414;
+  color: white;
+  font-family: Circular, Helvetica, Arial, sans-serif;
 }
 
 #center-container {
-    width: 40%;
+  width: 40%;
 }
 
 #center-container > #header-bar-container {
-    width: 100%;
+  width: 100%;
 }
 
 #header-bar-container > #header-title {
-    margin-left: 20px;
-    margin-bottom: 12px;
-    margin-top: 0px;
+  margin-left: 20px;
+  margin-bottom: 12px;
+  margin-top: 0px;
 }
 
 .divider {
-    height: 5px;
-    width: auto;
-    background-color: #1DB954;
+  height: 5px;
+  width: auto;
+  background-color: #1db954;
 }
 
 .setting-panel {
-    margin-left: 20px;
-    margin-right: 20px;
-    padding-bottom: 20px;
-    padding-top: 20px;
-    display: flex;
+  margin-left: 20px;
+  margin-right: 20px;
+  padding-bottom: 20px;
+  padding-top: 20px;
+  display: flex;
 }
 
 .title-panel {
-    width: 30%;
-    padding-top: 20px;
+  width: 30%;
+  padding-top: 20px;
 
-    font-size: 22px;
-    font-weight: bold;
+  font-size: 22px;
+  font-weight: bold;
 }
 
 .label-text-panel {
-    display: flex;
+  display: flex;
 }
 
 label {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 
-    color: darkgray;
+  color: darkgray;
 }
 
 p {
-    margin-left: 5px;
-    margin-bottom: 6px;
-    margin-top: 6px;
-    color: white;
+  margin-left: 5px;
+  margin-bottom: 6px;
+  margin-top: 6px;
+  color: white;
 }
 
-#login-status-form > #spotify-button {
-    height: 40px;
-    width: 200px;
-    margin-bottom: 12px;
-    margin-top: 12px;
+#login-status-form > #spotify-login-button {
+  height: 40px;
+  width: 200px;
+  margin-bottom: 12px;
+  margin-top: 12px;
 
-    background-color: #1DB954;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
-    outline: none;
+  background-color: #1db954;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  outline: none;
 }
 
-#login-status-form > #spotify-button:hover {
-    background-color: white;
-    color: black;
-    transition: 0.25s;
+#login-status-form > #spotify-login-button:hover {
+  background-color: white;
+  color: black;
+  transition: 0.25s;
 }

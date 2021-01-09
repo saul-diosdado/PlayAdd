@@ -7,9 +7,9 @@
 /* HTML ELEMENTS */
 /*--------------------------------------------------------------------------*/
 
-const spotifyLoginStatusElement = document.getElementById("login-status-text");
-const spotifyEmailElement = document.getElementById("spotify-email-text");
-const spotifyButtonElement = document.getElementById("spotify-button");
+const spotifyLoginStatusText = document.getElementById("spotify-login-status-text");
+const spotifyEmailText = document.getElementById("spotify-email-text");
+const spotifyLoginButton = document.getElementById("spotify-login-button");
 
 const extensionVersionElement = document.getElementById("extension-version-text");
 
@@ -24,14 +24,20 @@ const DOMAIN_COOKIE_STORE = "https://playadd-for-spotify.herokuapp.com";
  * Tell the background.js script to start the login process or to logout the user, depending
  * on the current login status of the user.
  */
-spotifyButtonElement.addEventListener("click", () => {
+spotifyLoginButton.addEventListener("click", () => {
     // Get the current login status of the user from chrome.storage.
     chrome.storage.local.get("isLoggedIn", (item) => {
         // This button logs the user out if they are logged in, and vice versa.
         if (item.isLoggedIn) {
             chrome.runtime.sendMessage({message: "logout"});
         } else {
-            chrome.runtime.sendMessage({message: "login"});
+            setLoadingAnimation();
+            chrome.runtime.sendMessage({message: "login"}, (response) => {
+                if (!response.success) {
+                    // The login failed, therefore the login popup is still showing so remove the loading animation.
+                    removeLoadingAnimation();
+                }
+            });
         }
     })
 });
@@ -71,11 +77,11 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
  * Changes to the UI that need to be made when the user is currently logged in to Spotify.
  */
 function setUIUserIsLoggedIn() {
-    spotifyLoginStatusElement.innerText = "Yes";
-    spotifyButtonElement.innerText = "Logout of Spotify";
+    spotifyLoginStatusText.innerText = "Yes";
+    spotifyLoginButton.innerText = "Logout of Spotify";
     // Make an API request to get the user's email and update the UI.
     spotifyGetEmail((email) => {
-        spotifyEmailElement.innerText = email;
+        spotifyEmailText.innerText = email;
     });
 }
 
@@ -83,9 +89,27 @@ function setUIUserIsLoggedIn() {
  * Changes to the UI that need to be made when the user is not logged in to Spotify.
  */
 function setUIUserIsLoggedOut() {
-    spotifyLoginStatusElement.innerText = "No";
-    spotifyButtonElement.innerText = "Connect to Spotify";
-    spotifyEmailElement.innerText = "N/A";
+    spotifyLoginStatusText.innerText = "No";
+    spotifyLoginButton.innerText = "Connect to Spotify";
+    spotifyEmailText.innerText = "N/A";
+}
+
+/**
+ * Creates and adds a loading animation to the login button.
+ */
+function setLoadingAnimation() {
+    let loadingCircle = document.createElement("i");
+    loadingCircle.className = "fa fa-circle-o-notch fa-spin";
+    spotifyLoginButton.innerText = " Connecting";
+    spotifyLoginButton.insertBefore(loadingCircle, spotifyLoginButton.firstChild);
+}
+
+/**
+ * Resets the login button to its original state.
+ */
+function removeLoadingAnimation() {
+    spotifyLoginButton.removeChild(spotifyLoginButton.firstChild);
+    spotifyLoginButton.innerText = "Connect to Spotify";
 }
 
 /**
