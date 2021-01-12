@@ -79,9 +79,16 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
 function setUIUserIsLoggedIn() {
     spotifyLoginStatusText.innerText = "Yes";
     spotifyLoginButton.innerText = "Logout of Spotify";
-    // Make an API request to get the user's email and update the UI.
-    spotifyGetEmail((email) => {
-        spotifyEmailText.innerText = email;
+    chrome.storage.local.get("userEmail", (item) => {
+        if (item.userEmail != null) {
+            spotifyEmailText.innerText = item.userEmail;
+        } else {
+            // Make an API request to get the user's email, update the UI, and store the email.
+            spotifyGetEmail((email) => {
+                spotifyEmailText.innerText = email;
+                chrome.storage.local.set({userEmail: email});
+            });
+        }
     });
 }
 

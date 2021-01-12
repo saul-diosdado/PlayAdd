@@ -220,7 +220,8 @@ function spotifyRefreshToken() {
 function spotifyLogout() {
     chrome.cookies.remove({name: "accessToken", url: DOMAIN_BACKEND});
     chrome.cookies.remove({name: "refreshToken", url: DOMAIN_BACKEND});
-    chrome.storage.local.set({"isLoggedIn": false});
+    chrome.storage.local.set({isLoggedIn: false});
+    chrome.storage.local.set({userEmail: null});
     chrome.identity.clearAllCachedAuthTokens(() => {});
     clearInterval(tokenRefreshInterval);
 }
