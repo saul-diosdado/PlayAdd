@@ -10,6 +10,14 @@ playlists so you can quickly add the song to a playlist.
 This Google Chrome Extension will be coming to the Google Chrome Web Store soon!
 Once this extension is on the store, a link will be provided here.
 
+## Installing The Extension
+
+For regular or development use, you can also choose to download this project and manually install it.
+
+1. In Google Chrome, go to the extensions page by either navigating to chrome://extensions in the browser search bar or through the settings menu.
+2. Enable the "Developer Mode" toggle button located on the extensions page.
+3. Click on the "Load unpacked" button which should open a file browser window. Navigate to this project's root directory and select it.
+
 # Local Development
 
 For an entirely local installion and development, follow the instructions below. Running the server locally
