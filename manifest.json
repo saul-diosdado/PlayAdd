@@ -1,6 +1,6 @@
 {
     "name": "PlayAdd for Spotify",
-    "version": "1.0.3",
+    "version": "0.0.0.1",
     "description": "Easily add music being played on YouTube to your Spotify playlists.",
     "permissions": [
         "cookies", "identity", "storage", "tabs",
