@@ -18,7 +18,7 @@ let addButtonElement = document.getElementById("add-button");
 /* CONSTANTS/GLOBAL VARIABLES */
 /*--------------------------------------------------------------------------*/
 
-const DOMAIN_BACKEND = "https://playadd-for-spotify.herokuapp.com";
+const DOMAIN_BACKEND = "http://localhost:3000";
 const DOMAIN_COOKIE_STORE = "https://playadd-for-spotify.herokuapp.com";
 
 /**

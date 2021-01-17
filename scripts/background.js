@@ -10,7 +10,7 @@
 // Matches any YouTube video URL (note the "/watch?")
 const regexYTVideoURL = new RegExp("https:\/\/www\.youtube\.com\/watch\?\S*");
 
-const DOMAIN_BACKEND = "https://playadd-for-spotify.herokuapp.com";
+const DOMAIN_BACKEND = "http://localhost:3000";
 const DOMAIN_COOKIE_STORE = "https://playadd-for-spotify.herokuapp.com";
 const DOMAIN_EXTENSION = "chrome-extension://" + chrome.runtime.id;
 
