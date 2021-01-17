@@ -55,7 +55,7 @@ This file has no name, simply a .env file extension which should be created in t
 **DO NOT publish this file to a repository**. The file should contain the following.
 
 ```text
-EXTENSION_DOMAIN = https://lbaglokofickglbhmfkaimnafhghohhh.chromiumapp.org
+EXTENSION_DOMAIN = https://<extension_id>.chromiumapp.org
 SPOTIFY_CLIENT_ID = <client_id>
 SPOTIFY_CLIENT_SECRET = <client_secret>
 SPOTIFY_REDIRECT_URL = http://localhost:3000
