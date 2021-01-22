@@ -7,8 +7,7 @@ playlists so you can quickly add the song to a playlist.
 
 ## Chrome Web Store
 
-This Google Chrome Extension will be coming to the Google Chrome Web Store soon!
-Once this extension is on the store, a link will be provided here.
+[Install](https://chrome.google.com/webstore/detail/playadd-for-spotify/ohnjhcegdijnbpbpgmmkdjmmeekomlfk) this extension directly from the Chrome Web Store. 
 
 ## Installing The Extension
 
